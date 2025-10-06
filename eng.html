@@ -1,350 +1,240 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Latte Café｜メニュー＆オーダー</title>
-<meta name="theme-color" content="#006241">
-<style>
-  :root{
-    --green:#006241; --deep:#004c33; --cream:#f7f3e9; --paper:#fffdf6; --ink:#1f2937;
-    --shadow:0 6px 24px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.06);
-    --radius:16px;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0}
-  body{
-    font-family: "Hiragino Sans","Noto Sans JP",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
-    background: linear-gradient(180deg,#faf7f0, #f7f3e9);
-    color:var(--ink);
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>英単語暗記チェックリスト｜Ader Blue Light（訳トグル＋シール剥がし）</title>
+  <meta name="theme-color" content="#4C6FFF">
+  <style>
+    :root{
+      --bg:#F7F8FB; --paper:#FFFFFF; --ink:#1F2430; --muted:#6F7787; --line:#E7EAF0;
+      --primary:#4C6FFF; --primary-ink:#FFFFFF; --primary-soft:#EDF2FF; --primary-soft-2:#CCD7FF;
+      --ok:#12a150; --ok-soft:#E6F6EA; --radius:16px; --shadow:0 10px 28px rgba(18,25,38,.08);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;letter-spacing:.2px}
 
-  /* ヒーロー */
-  .hero{
-    position:relative; overflow:hidden; padding:56px 20px 40px;
-    background:
-      radial-gradient(80% 60% at 80% -10%, #8fd3b5 0%, rgba(143,211,181,0) 60%),
-      radial-gradient(70% 50% at -10% 20%, #e9f5ee 0%, rgba(233,245,238,0) 60%),
-      linear-gradient(120deg,#ffffff 0%, #fffdf6 60%, #f4efe4 100%);
-  }
-  .hero-inner{max-width:1080px; margin:0 auto; display:grid; gap:24px; align-items:center}
-  .brand{
-    display:flex; gap:16px; align-items:center; user-select:none
-  }
-  .logo{
-    width:56px; height:56px; border-radius:50%; background:#006241; display:grid; place-items:center;
-    color:#fff; font-weight:700; box-shadow:var(--shadow)
-  }
-  .title{margin:0; font-size:clamp(24px,4.5vw,40px); color:var(--green); letter-spacing:.02em}
-  .subtitle{margin:4px 0 0; color:#4b5563}
+    /* Header */
+    header{position:sticky;top:0;z-index:10;backdrop-filter:saturate(1.05) blur(6px);
+      background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.7));
+      border-bottom:1px solid var(--line);padding:14px 18px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:18px;height:28px;background:var(--primary);border-radius:4px;box-shadow:0 8px 24px rgba(76,111,255,.28)}
+    .title{font-weight:800;letter-spacing:.3px}
+    .sub{font-size:12px;color:var(--muted)}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{background:var(--primary);color:var(--primary-ink);border:1px solid var(--primary);padding:8px 14px;border-radius:999px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px rgba(76,111,255,.18)}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.ghost{background:#fff;color:var(--primary);border-color:var(--primary);box-shadow:none}
 
-  .hero-media{
-    border-radius:24px; overflow:hidden; box-shadow:var(--shadow); position:relative; min-height:180px;
-    background:
-      linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.25)),
-      radial-gradient(110% 70% at 0% 100%, #0e6d4b 0%, #064735 40%, #023528 70%, #01251c 100%);
-  }
-  .hero-media::after{
-    content:""; position:absolute; inset:0;
-    background:
-      repeating-linear-gradient( 25deg, rgba(255,255,255,.06) 0 2px, transparent 2px 8px),
-      radial-gradient(60% 60% at 70% 30%, rgba(255,255,255,.16), transparent 60%);
-    mix-blend-mode: screen;
-  }
-  .hero-cta{display:flex; gap:12px; flex-wrap:wrap}
-  .btn{
-    appearance:none; border:none; padding:12px 18px; border-radius:12px; cursor:pointer;
-    font-weight:600; letter-spacing:.02em; transition:.2s transform ease, .2s box-shadow ease, .2s background-color ease;
-  }
-  .btn:active{transform:translateY(1px)}
-  .btn-primary{background:var(--green); color:#fff; box-shadow:var(--shadow)}
-  .btn-primary:hover{background:var(--deep)}
-  .btn-ghost{background:#ffffffcc; backdrop-filter:saturate(140%) blur(6px); color:var(--green); border:1px solid #e5e7eb}
-  .badge{
-    font-size:.85rem; background:#e8f5ee; color:var(--deep); padding:.35rem .6rem; border-radius:999px; display:inline-block
-  }
+    /* Layout */
+    .wrap{max-width:970px;margin:24px auto;padding:0 18px}
+    .grid{display:flex;flex-direction:column;gap:16px}
+    .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+    .card h2{margin:0;font-size:16px;display:flex;align-items:center;gap:12px;position:relative;padding-right:40px;cursor:pointer;user-select:none}
+    .card h2 .hint{font-size:12px;color:var(--muted);font-weight:500}
+    .card h2::after{content:"▾";position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#9AA2B1;font-size:14px}
+    .card.folded h2::after{transform:translateY(-50%) rotate(-90deg);opacity:.8}
+    .h2-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+    .chip{font-size:11px;padding:6px 12px;border-radius:999px;border:1px solid var(--primary);background:var(--primary-soft);color:var(--primary);cursor:pointer;font-weight:700}
 
-  /* コンテンツ */
-  .container{max-width:1080px; margin:24px auto 80px; padding:0 20px}
-  .section-title{margin:24px 0 12px; font-size:clamp(18px,2.8vw,24px)}
-  .grid{
-    display:grid; gap:16px;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  }
-  .card{
-    background:var(--paper); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column
-  }
-  .thumb{
-    height:140px; background:
-      radial-gradient(80% 60% at 30% 30%, rgba(255,255,255,.25), rgba(255,255,255,0) 60%),
-      linear-gradient(120deg,#2f7a5d, #0b5a40);
-  }
-  .card-body{padding:14px 14px 16px; display:flex; flex-direction:column; gap:8px}
-  .card h3{margin:0; font-size:1.05rem}
-  .price{color:#065f46; font-weight:700}
-  .qty{display:flex; align-items:center; gap:8px}
-  .qty input{
-    width:64px; padding:8px; border-radius:10px; border:1px solid #e5e7eb; text-align:center; font-weight:600
-  }
-  .add{margin-top:auto}
+    /* List rows */
+    .list{list-style:none;padding:0;margin:12px 0 0 0;transition:max-height .35s ease, opacity .35s ease}
+    .list.folded{max-height:0;opacity:0;overflow:hidden}
+    .row{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+    .row + .row{margin-top:8px}
+    .row:hover{border-color:#DDE2EE;box-shadow:0 6px 14px rgba(10,20,40,.06)}
+    .word{font-weight:800}
+    .ipa{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;color:#4C5567;opacity:.95}
+    .jp{color:#2b2b2b;position:relative}
+    /* 非表示時のステッカー（静的） */
+    .jp.covered::before{content:"";position:absolute;inset:0;border-radius:10px;
+      background:linear-gradient(135deg,var(--primary-soft),#fff 60%);
+      border:1px solid var(--primary-soft-2);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 4px 10px rgba(18,25,38,.08)}
 
-  /* フッター */
-  footer{max-width:1080px; margin:40px auto; padding:0 20px; color:#6b7280; text-align:center}
+    input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--ok)}
+    footer{max-width:970px;margin:20px auto 34px;padding:0 18px;color:var(--muted);font-size:12px}
+    @media print{header,footer{display:none!important}body{background:#fff}.card{break-inside:avoid}}
+    @media (max-width:560px){.row{grid-template-columns:1fr 1fr}.ipa{order:3}.jp{order:2}}
 
-  /* フローティングカート */
-  .cart{
-    position:fixed; right:16px; bottom:16px; background:#0a3d2e; color:#fff;
-    border-radius:18px; padding:12px 16px; box-shadow:var(--shadow); display:flex; gap:10px; align-items:center; z-index:10
-  }
-  .cart .count{background:#22c55e; color:#063; font-weight:800; border-radius:999px; padding:2px 8px}
-  .cart .total{font-weight:700}
-
-  /* モーダル */
-  dialog{
-    width:min(680px, 92vw); border:none; border-radius:18px; padding:0; box-shadow:0 30px 80px rgba(0,0,0,.35); overflow:hidden
-  }
-  dialog::backdrop{background:rgba(0,0,0,.4)}
-  .modal-head{display:flex; justify-content:space-between; align-items:center; padding:16px 18px; background:#0a3d2e; color:#fff}
-  .modal-body{padding:16px 18px; background:#fff}
-  .modal-foot{display:flex; justify-content:flex-end; gap:10px; padding:14px 18px; background:#f8fafc}
-  .table{width:100%; border-collapse:collapse}
-  .table th,.table td{padding:10px 8px; border-bottom:1px solid #e5e7eb; text-align:left}
-  .table th{font-size:.92rem; color:#475569}
-  .right{text-align:right}
-  .muted{color:#6b7280}
-  .danger{background:#fee2e2; color:#7f1d1d}
-  @media (min-width:900px){
-    .hero-inner{grid-template-columns:1fr 1.2fr}
-  }
-</style>
+    /* Peel animation（剥がす動き） */
+    .peel{position:absolute;left:0;top:0;border-radius:10px;pointer-events:none;
+      background:
+        radial-gradient(12px 12px at 100% 0%, rgba(0,0,0,.08), transparent 60%),
+        linear-gradient(135deg, #fff 0%, var(--primary-soft) 65%, #fff 100%);
+      border:1px solid var(--primary-soft-2);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.75), 0 10px 22px rgba(18,25,38,.12);
+      transform-origin:left top; opacity:1}
+    .peel.run{animation:peelOff .65s cubic-bezier(.25,.8,.25,1) forwards}
+    @keyframes peelOff{
+      0%{transform:rotateX(0) rotateZ(0) translate(0,0);opacity:1}
+      60%{transform:rotateX(35deg) rotateZ(-2deg) translate(-2px,-4px)}
+      100%{transform:rotateX(75deg) rotateZ(-6deg) translate(-4px,-16px);opacity:0}
+    }
+  </style>
 </head>
 <body>
-  <header class="hero">
-    <div class="hero-inner">
+  <header>
+    <div class="brand">
+      <span class="logo"></span>
       <div>
-        <div class="brand">
-          <div class="logo">LC</div>
-          <div>
-            <h1 class="title">Latte Café</h1>
-            <p class="subtitle">やさしい一杯を、あなたに。<span class="badge">NEW</span></p>
-          </div>
-        </div>
-        <div style="height:16px"></div>
-        <div class="hero-cta">
-          <button class="btn btn-primary" id="openCartBtn">🧺 カートを見る</button>
-          <button class="btn btn-ghost" id="scrollMenu">📋 メニューへ</button>
-        </div>
+        <div class="title">英単語暗記チェックリスト</div>
+        <div class="sub">カテゴリ右上のボタンで訳を表示/非表示。ライト×淡ブルーで集中しやすく。</div>
       </div>
-      <div class="hero-media" aria-hidden="true"></div>
+    </div>
+    <div class="toolbar">
+      <button class="btn" id="printBtn">印刷</button>
+      <button class="btn ghost" id="resetBtn">全リセット</button>
     </div>
   </header>
 
-  <main class="container" id="menuTop">
-    <h2 class="section-title">☕ ドリンクメニュー</h2>
-    <div class="grid" id="menuGrid" aria-live="polite"></div>
-
-    <h2 class="section-title">🍰 スイーツ</h2>
-    <div class="grid" id="dessertGrid" aria-live="polite"></div>
-  </main>
-
-  <footer>
-    © 2025 Latte Café — このページは学習用デモです。画像はCSSのグラデで生成しています。
-  </footer>
-
-  <!-- フローティングカート -->
-  <div class="cart" role="status" aria-live="polite">
-    <span>カート</span>
-    <span class="count" id="cartCount">0</span>
-    <span class="total" id="cartTotal">¥0</span>
-    <button class="btn btn-primary" id="cartQuickOpen" style="padding:8px 12px">開く</button>
-  </div>
-
-  <!-- カートモーダル -->
-  <dialog id="cartModal" aria-label="注文カート">
-    <div class="modal-head">
-      <strong>🧺 ご注文内容</strong>
-      <button class="btn btn-ghost" id="closeCart">閉じる</button>
-    </div>
-    <div class="modal-body">
-      <table class="table" id="cartTable">
-        <thead>
-          <tr><th>商品</th><th class="right">単価</th><th class="right">数量</th><th class="right">小計</th><th></th></tr>
-        </thead>
-        <tbody id="cartBody">
-          <tr><td colspan="5" class="muted">カートは空です。</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="modal-foot">
-      <div style="margin-right:auto; align-self:center" class="muted">税込表示・デモ動作</div>
-      <button class="btn btn-ghost" id="clearCart">カートを空に</button>
-      <button class="btn btn-primary" id="checkout">この内容で注文（デモ）</button>
-    </div>
-  </dialog>
+  <div class="wrap"><div class="grid" id="grid"></div></div>
+  <footer>状態は自動保存（localStorage）。単語セットは下の <code>initialData</code> を編集してください。</footer>
 
   <script>
-    // ===== データ（ここを書き換えるだけでメニュー更新できるよ） =====
-    const drinks = [
-      { id:'latte', name:'カフェラテ', price:520, desc:'エスプレッソにスチームミルク。まろやか定番。' },
-      { id:'cap', name:'カプチーノ', price:540, desc:'ふわふわフォームとコクのバランス。' },
-      { id:'americano', name:'アメリカーノ', price:480, desc:'すっきりロングブラック。' },
-      { id:'matcha', name:'抹茶ラテ', price:590, desc:'香り高い宇治抹茶のやさしい甘み。' },
-      { id:'hojicha', name:'ほうじ茶ラテ', price:590, desc:'香ばしさが落ち着く和ラテ。' },
-      { id:'soda', name:'自家製ソーダ', price:450, desc:'ミントを添えた爽快ドリンク。' },
-    ];
-    const desserts = [
-      { id:'cheesecake', name:'ベイクドチーズケーキ', price:620, desc:'濃厚でしっとり、珈琲と相性◎' },
-      { id:'brownie', name:'ウォルナッツブラウニー', price:520, desc:'ナッツ食感が楽しい濃厚チョコ。' },
-      { id:'cookie', name:'バタークッキー', price:280, desc:'さくほろ食感の小さなしあわせ。' },
-      { id:'pound', name:'レモンパウンド', price:420, desc:'爽やかな酸味とバターの香り。' },
-    ];
-
-    const cart = new Map(); // id -> {name, price, qty}
-
-    // ===== ユーティリティ =====
-    const yen = n => "¥" + n.toLocaleString("ja-JP");
-    const el = (tag, props={}, ...children) => {
-      const node = document.createElement(tag);
-      Object.assign(node, props);
-      for(const c of children){
-        if(typeof c === "string") node.appendChild(document.createTextNode(c));
-        else if(c) node.appendChild(c);
-      }
-      return node;
+    /* 単語データ（例）— { w, ipa, jp } */
+    const initialData = {
+      "動詞":[
+        { w:"acquire", ipa:"/əˈkwaɪər/", jp:"獲得する" },
+        { w:"assume",  ipa:"/əˈsuːm/",  jp:"仮定する・引き受ける" },
+        { w:"pursue",  ipa:"/pərˈsuː/", jp:"追求する" },
+        { w:"refine",  ipa:"/rɪˈfaɪn/", jp:"磨く・洗練する" }
+      ],
+      "形容詞":[
+        { w:"subtle", ipa:"/ˈsʌt̬.əl/", jp:"微妙な・繊細な" },
+        { w:"robust", ipa:"/roʊˈbʌst/", jp:"頑丈な・力強い" },
+        { w:"feasible", ipa:"/ˈfiː.zə.bəl/", jp:"実行可能な" }
+      ],
+      "副詞":[
+        { w:"roughly", ipa:"/ˈrʌf.li/", jp:"おおよそ" },
+        { w:"literally", ipa:"/ˈlɪt̬.ər.əl.i/", jp:"文字通り" }
+      ],
+      "名詞":[
+        { w:"insight", ipa:"/ˈɪn.saɪt/", jp:"洞察" },
+        { w:"trajectory", ipa:"/trəˈdʒek.tər.i/", jp:"軌道・軌跡" }
+      ],
+      "前置詞":[
+        { w:"beyond", ipa:"/biˈjɑːnd/", jp:"〜を超えて" },
+        { w:"within", ipa:"/wɪˈðɪn/", jp:"〜以内に／〜の内側に" }
+      ]
     };
 
-    // ===== カード生成 =====
-    function createCard(item){
-      const wrap = el("article", {className:"card", tabIndex:0, role:"group", "aria-label": item.name});
-      const thumb = el("div", {className:"thumb", "aria-hidden":"true"});
-      const body = el("div", {className:"card-body"});
-      const h3 = el("h3", {}, item.name);
-      const desc = el("div", {className:"muted", style:"min-height:2.2em"}, item.desc);
-      const price = el("div", {className:"price"}, yen(item.price));
+    const ORDER = ["動詞","形容詞","副詞","名詞","前置詞"];
+    const STORE_KEY = "vocab-deck-v3-ader-light";
 
-      // 量コントロール
-      const qtyWrap = el("div", {className:"qty"});
-      const input = el("input", {type:"number", min:"1", value:"1", inputMode:"numeric", "aria-label":"数量"});
-      qtyWrap.append("数量", input);
+    const load = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY))||{} } catch { return {} } };
+    const save = s => localStorage.setItem(STORE_KEY, JSON.stringify(s));
+    const state = load();
+    if(!state.known) state.known = {};
+    if(!state.folded) state.folded = {};
+    if(!state.showJP) state.showJP = {};
 
-      const button = el("button", {className:"btn btn-primary add"});
-      button.textContent = "カートに入れる";
-      button.addEventListener("click", () => {
-        const q = Math.max(1, parseInt(input.value||"1",10));
-        addToCart(item, q);
-        animateBump(button);
-      });
+    let lastToggle = { cat:null, toShow:false };
 
-      body.append(h3, desc, price, qtyWrap, button);
-      wrap.append(thumb, body);
-      return wrap;
-    }
+    const makeId = (cat, w) => 'id-'+(cat+'-'+w).replace(/\s+/g,'-').replace(/[^\w\-]/g,'');
 
-    function animateBump(node){
-      node.style.transform = "scale(1.03)";
-      node.style.boxShadow = "0 10px 24px rgba(0,0,0,.18)";
-      setTimeout(()=>{
-        node.style.transform = "";
-        node.style.boxShadow = "";
-      }, 180);
-    }
+    function render(){
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
 
-    // ===== レンダリング =====
-    function renderMenus(){
-      const menuGrid = document.getElementById("menuGrid");
-      const dessertGrid = document.getElementById("dessertGrid");
-      menuGrid.innerHTML = "";
-      dessertGrid.innerHTML = "";
-      drinks.forEach(d => menuGrid.appendChild(createCard(d)));
-      desserts.forEach(d => dessertGrid.appendChild(createCard(d)));
-    }
+      ORDER.forEach(cat => {
+        const card = document.createElement('section');
+        card.className = 'card' + (state.folded[cat] ? ' folded' : '');
 
-    // ===== カート操作 =====
-    function addToCart(item, qty=1){
-      const cur = cart.get(item.id) || {name:item.name, price:item.price, qty:0};
-      cur.qty += qty;
-      cart.set(item.id, cur);
-      updateCartUI();
-    }
-    function setQty(id, qty){
-      if(!cart.has(id)) return;
-      if(qty <= 0){ cart.delete(id); } else {
-        const v = cart.get(id); v.qty = qty; cart.set(id, v);
-      }
-      updateCartUI();
-    }
-    function removeItem(id){
-      cart.delete(id);
-      updateCartUI();
-    }
-    function clearCart(){
-      cart.clear();
-      updateCartUI();
-    }
-    function cartTotals(){
-      let count = 0, total = 0;
-      for(const {price, qty} of cart.values()){
-        count += qty; total += price*qty;
-      }
-      return {count, total};
-    }
+        const h2 = document.createElement('h2');
+        h2.innerHTML = `${cat} <span class="hint">単語 / 発音 / 日本語訳</span>`;
+        h2.onclick = () => { state.folded[cat] = !state.folded[cat]; save(state); render(); };
 
-    // ===== カートUI =====
-    function updateCartUI(){
-      const {count, total} = cartTotals();
-      document.getElementById("cartCount").textContent = count;
-      document.getElementById("cartTotal").textContent = yen(total);
+        // 訳の表示/非表示（カテゴリ単位）
+        const toggleJP = document.createElement('span');
+        toggleJP.className = 'chip';
+        const show = !!state.showJP[cat];
+        toggleJP.textContent = show ? '訳を非表示' : '訳を表示';
+        toggleJP.onclick = (e)=>{
+          e.stopPropagation();
+          const toShow = !state.showJP[cat];
+          state.showJP[cat] = toShow; save(state);
+          lastToggle = { cat, toShow };
+          render();
+        };
 
-      const body = document.getElementById("cartBody");
-      body.innerHTML = "";
-      if(count === 0){
-        body.appendChild(el("tr",{}, el("td",{colSpan:5, className:"muted"},"カートは空です。")));
-        return;
-      }
-      for(const [id, row] of cart.entries()){
-        const tr = el("tr");
-        tr.append(
-          el("td",{}, row.name),
-          el("td",{className:"right"}, yen(row.price)),
-          el("td",{className:"right"},
-            el("input", {type:"number", min:"0", value:String(row.qty), style:"width:72px; padding:6px; text-align:right"},
-              ),
-          ),
-          el("td",{className:"right"}, yen(row.price*row.qty)),
-          el("td",{},
-            el("button",{className:"btn danger", onclick:()=>removeItem(id)}, "削除")
-          )
-        );
-        // 変更イベント
-        tr.querySelector("input").addEventListener("change", (e)=>{
-          const v = Math.max(0, parseInt(e.target.value||"0",10));
-          setQty(id, v);
+        const actions = document.createElement('div');
+        actions.className = 'h2-actions';
+        actions.append(toggleJP);
+        h2.append(actions);
+
+        const ul = document.createElement('ul');
+        ul.className = 'list' + (state.folded[cat] ? ' folded' : '');
+
+        (initialData[cat]||[]).forEach(item => {
+          const li = document.createElement('li');
+          li.className = 'row';
+          const id = makeId(cat, item.w);
+
+          const cb = document.createElement('input');
+          cb.type = 'checkbox'; cb.id = id;
+          cb.checked = !!state.known[item.w];
+          cb.onchange = () => { state.known[item.w] = cb.checked; save(state); };
+
+          const word = document.createElement('div');
+          word.className = 'word'; word.textContent = item.w;
+
+          const ipa = document.createElement('div');
+          ipa.className = 'ipa'; ipa.textContent = item.ipa || '';
+
+          const jp = document.createElement('div');
+          jp.className = 'jp' + (state.showJP[cat] ? '' : ' covered');
+          jp.textContent = item.jp || '';
+
+          li.append(cb, word, ipa, jp);
+          ul.append(li);
         });
-        body.appendChild(tr);
-      }
+
+        card.append(h2, ul);
+        grid.append(card);
+
+        // 直前に「表示」に切り替えたカテゴリだけ、剥がしアニメを実行
+        if(lastToggle.cat === cat && lastToggle.toShow){
+          peelReveal(ul);
+        }
+      });
     }
 
-    // ===== モーダル／ナビ =====
-    const modal = document.getElementById("cartModal");
-    document.getElementById("openCartBtn").addEventListener("click", ()=> modal.showModal());
-    document.getElementById("cartQuickOpen").addEventListener("click", ()=> modal.showModal());
-    document.getElementById("closeCart").addEventListener("click", ()=> modal.close());
-    document.getElementById("clearCart").addEventListener("click", clearCart);
-    document.getElementById("checkout").addEventListener("click", ()=>{
-      const {count, total} = cartTotals();
-      if(count===0){ alert("カートが空です。"); return; }
-      alert(`ご注文ありがとうございます！\n点数: ${count}\n合計: ${yen(total)}\n（デモなので送信はしていません）`);
-      modal.close();
-      clearCart();
-    });
+    // 覆いを貼って、剥がすアニメーション
+    function peelReveal(container){
+      const targets = container.querySelectorAll('.jp');
+      targets.forEach((jp, idx) => {
+        // 既存の覆いを除去
+        jp.querySelectorAll('.peel').forEach(n => n.remove());
+        // サイズに合わせた覆いを作成
+        const r = jp.getBoundingClientRect();
+        const peel = document.createElement('span');
+        peel.className = 'peel';
+        peel.style.width  = r.width  + 'px';
+        peel.style.height = r.height + 'px';
+        peel.style.left = '0px';
+        peel.style.top  = '0px';
+        // 少しだけディレイを付けて“連続で剥がす”表現
+        peel.style.animationDelay = (idx * 40) + 'ms';
 
-    document.getElementById("scrollMenu").addEventListener("click", ()=>{
-      document.getElementById("menuTop").scrollIntoView({behavior:"smooth", block:"start"});
-    });
+        jp.appendChild(peel);
+        jp.classList.remove('covered');
+        requestAnimationFrame(() => peel.classList.add('run'));
+        peel.addEventListener('animationend', () => peel.remove(), { once:true });
+      });
+    }
 
-    // 初期化
-    renderMenus();
-    updateCartUI();
+    render();
+
+    document.getElementById('printBtn').onclick = () => window.print();
+    document.getElementById('resetBtn').onclick = () => {
+      if(confirm('全リセットしますか？\n（開閉・覚えた・訳表示の状態を削除）')){
+        localStorage.removeItem(STORE_KEY);
+        location.reload();
+      }
+    };
   </script>
 </body>
 </html>
