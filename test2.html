@@ -1,10 +1,10 @@
 <!DOCTYPE html><html lang="ja"><head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ケータリングカフェ｜スタバ風チェックリスト（折りたたみ付き）</title>
+  <title>ケータリングカフェ｜チェックリスト</title>
   <meta name="theme-color" content="#006241">
-  <meta property="og:title" content="ケータリングカフェ｜スタバ風チェックリスト">
-  <meta property="og:description" content="数量入力／CSV入出力／印刷／取り消し（Undo）対応。カテゴリ開閉機能付き。">
+  <meta property="og:title" content="ケータリングカフェ｜チェックリスト">
+  <meta property="og:description" content="数量入力／CSV入出力／印刷">
   <meta property="og:type" content="website">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><circle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%23006241%22/><path d=%22M16 6c4 0 7 3 7 7s-3 7-7 7-7-3-7-7 3-7 7-7Z%22 fill=%22white%22/></svg>">
   <style>
@@ -21,7 +21,6 @@
     .btn:hover{transform:translateY(-1px); box-shadow:0 6px 14px rgba(0,0,0,.12)}
     .btn.secondary{background:var(--sbx-green); color:#fff; border-color:transparent}
     .btn.ghost{background:transparent; color:#fff; border:1px solid rgba(255,255,255,.35)}
-    .btn[disabled]{opacity:.45; cursor:not-allowed}
     .wrap{max-width:1100px; margin:28px auto; padding:0 16px}
     .grid{display:flex; flex-direction:column; gap:18px}
 
@@ -40,11 +39,23 @@
     .item{flex:1}
     .qty{width:60px; text-align:center; border:1px solid #ccc; border-radius:8px; padding:4px; font-size:13px}
 
-    .h2-actions{display:flex; gap:6px}
-    .chip{font-size:11px; padding:4px 8px; border-radius:999px; border:1px solid rgba(0,0,0,.06); background:#fff; color:var(--sbx-green); cursor:pointer}
+    /* ←ここから縦ライン揃え修正 */
+    .h2-actions{
+      display:flex;
+      align-items:center; /* ← ボタンの縦位置を見出しと揃える */
+      gap:6px;
+    }
+    .chip{
+      font-size:11px;
+      padding:3px 8px; /* ← 高さを微調整 */
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.06);
+      background:#fff;
+      color:var(--sbx-green);
+      cursor:pointer;
+    }
 
     footer{max-width:1100px; margin:20px auto 40px; padding:0 16px; color:var(--muted); font-size:12px}
-
     @media print{ header, footer{ display:none !important; } .card{ max-height:none !important; } body{ background:#fff !important; } }
   </style>
 </head>
@@ -67,19 +78,19 @@
   </header>
 
   <div class="wrap"><div class="grid" id="grid"></div></div>
-  <footer>※ 状態は自動保存されます（localStorage）。カテゴリ開閉やチェック内容も保持されます。</footer>
+  <footer>※ 状態は自動保存されます（localStorage）。カテゴリ開閉・チェック・数量すべて保持されます。</footer>
 
   <script>
     const initialData={
-      "エスプレッソ関係":["エスプレッソマシン(オスカー2)","グラインダー","ピッチャー5個","タンパー","タンピングマット","レベラー","量り","卓上用ノックボックス","ブラインドフィルター","マイナスドライバー","ステンレスショットグラス2個"],
-      "ドリンク関係":["コーヒー豆","抹茶粉","ほうじ茶粉","ソーダストリーム(ボトル2本)","ケトル","製氷機","小型冷蔵庫","パウダーオペレーションセット"],
+      "エスプレッソ関係":["エスプレッソマシン(オスカー2)","グラインダー","ピッチャー","タンパー","タンピングマット","レベラー","量り","卓上用ノックボックス","ブラインドフィルター","マイナスドライバー","ステンレスショットグラス2個"],
+      "ドリンク関係":["コーヒー豆","抹茶粉","ほうじ茶粉","ケトル","製氷機","小型冷蔵庫","パウダーオペレーションセット"],
       "コンディメント関係":["ガムシロップ","ストロー","ホットカップ","アイスカップ","リッド","マドラー","ダスター","アルコール","サランラップ","透明水タンク"],
       "運搬関係":["脚立","テーブル","台車","延長ケーブル2つ","発泡スチロール箱","ゴミ箱ゴミ袋","排水ゴムバケツ"],
       "装飾関係":["小さいメニューボード","サインボード","テーブルクロス","ディスプレイ小物"],
       "フローズン・ソーダ関係":["グラニータマシン","フローズン原料","ソーダストリーム","炭酸ボトル","フローズンカップ","ワイドストロー"]
     };
     const ORDER=["エスプレッソ関係","ドリンク関係","コンディメント関係","運搬関係","装飾関係","フローズン・ソーダ関係"];
-    const STORE_KEY='catering-checklist-foldable';
+    const STORE_KEY='catering-checklist-v2';
 
     const load=()=>{try{return JSON.parse(localStorage.getItem(STORE_KEY))||{};}catch{return {}}};
     const save=s=>localStorage.setItem(STORE_KEY,JSON.stringify(s));
