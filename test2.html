@@ -1,9 +1,9 @@
 <!DOCTYPE html><html lang="ja"><head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ケータリングカフェ｜スタバ風チェックリスト（固定順シンプル版）</title>
+  <title>ケータリングカフェ｜チェックリスト</title>
   <meta name="theme-color" content="#006241">
-  <meta property="og:title" content="ケータリングカフェ｜スタバ風チェックリスト">
+  <meta property="og:title" content="ケータリングカフェ｜チェックリスト">
   <meta property="og:description" content="数量入力／CSV入出力／印刷／取り消し（Undo）対応。カテゴリ・アイテムの追加、スクロール保持対応。">
   <meta property="og:type" content="website">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><circle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%23006241%22/><path d=%22M16 6c4 0 7 3 7 7s-3 7-7 7-7-3-7-7 3-7 7-7Z%22 fill=%22white%22/></svg>">
@@ -62,9 +62,12 @@
       <button class="btn ghost" id="resetBtn">全リセット</button>
     </div>
   </header>
+
   <div class="wrap"><div class="grid" id="grid"></div></div>
   <footer>※ 状態は自動保存されます（localStorage）。カテゴリ順は固定です。</footer>
+
   <script>
+    // ---- 初期データ ----
     const initialData={
       "エスプレッソ関係":["エスプレッソマシン(オスカー2)","グラインダー","ピッチャー5個","タンパー","タンピングマット","レベラー","量り","卓上用ノックボックス","ブラインドフィルター","マイナスドライバー","ステンレスショットグラス2個"],
       "ドリンク関係":["コーヒー豆","抹茶粉","ほうじ茶粉","ソーダストリーム(ボトル2本)","ケトル","製氷機","小型冷蔵庫","パウダーオペレーションセット"],
@@ -73,49 +76,73 @@
       "装飾関係":["小さいメニューボード","サインボード","テーブルクロス","ディスプレイ小物"],
       "フローズン・ソーダ関係":["グラニータマシン","フローズン原料","ソーダストリーム","炭酸ボトル","フローズンカップ","ワイドストロー"]
     };
-
     const ORDER=["エスプレッソ関係","ドリンク関係","コンディメント関係","運搬関係","装飾関係","フローズン・ソーダ関係"];
     const STORE_KEY='catering-checklist-fixed';
 
+    // ---- 状態の保存・読込 ----
     const load=()=>{try{return JSON.parse(localStorage.getItem(STORE_KEY))||{};}catch{return {}}};
     const save=s=>localStorage.setItem(STORE_KEY,JSON.stringify(s));
     const state=load();
     if(!state.checked)state.checked={};
     if(!state.qty)state.qty={};
 
+    // ---- 安全なID生成（btoaは使わない）----
+    const makeId=(cat,label)=>{
+      return 'cb-' + (cat + '-' + label)
+        .replace(/\s+/g,'-')       // 空白→-
+        .replace(/[^\w\-]/g,'');   // 英数・_・- 以外を除去
+    };
+
+    // ---- 描画 ----
     function render(){
       const grid=document.getElementById('grid');
       grid.innerHTML='';
       ORDER.forEach(cat=>{
         const card=document.createElement('section'); card.className='card';
         const h2=document.createElement('h2'); h2.textContent=cat;
+
         const addBtn=document.createElement('span'); addBtn.className='chip'; addBtn.textContent='アイテム追加';
         addBtn.onclick=()=>{
           const name=prompt('追加するアイテム名を入力');
           if(!name||!name.trim())return;
-          initialData[cat].push(name.trim()); save(state); render();
+          initialData[cat].push(name.trim());
+          save(state); render();
         };
+
         const actions=document.createElement('div'); actions.className='h2-actions'; actions.append(addBtn); h2.append(actions);
 
         const ul=document.createElement('ul'); ul.className='list';
         initialData[cat].forEach(label=>{
           const li=document.createElement('li'); li.className='row';
-          const id='cb-'+btoa(cat+'-'+label).replace(/=/g,'');
+
+          const id=makeId(cat,label);
           const cb=document.createElement('input'); cb.type='checkbox'; cb.id=id; cb.checked=!!state.checked[label];
           cb.onchange=()=>{state.checked[label]=cb.checked; save(state)};
+
           const lab=document.createElement('label'); lab.className='item'; lab.textContent=label; lab.setAttribute('for',id);
+
           const qty=document.createElement('input'); qty.type='number'; qty.className='qty'; qty.min='0'; qty.step='1'; qty.value=(state.qty[label]??1);
-          qty.onchange=()=>{const v=parseInt(qty.value,10); state.qty[label]=(Number.isFinite(v)&&v>=0)?v:1; qty.value=state.qty[label]; save(state)};
+          qty.onchange=()=>{
+            const v=parseInt(qty.value,10);
+            state.qty[label]=(Number.isFinite(v)&&v>=0)?v:1;
+            qty.value=state.qty[label];
+            save(state)
+          };
+
           li.append(cb,lab,qty); ul.append(li);
         });
+
         card.append(h2,ul); grid.append(card);
       });
     }
 
     render();
 
+    // ---- 操作ボタン ----
     document.getElementById('printBtn').onclick=()=>window.print();
-    document.getElementById('resetBtn').onclick=()=>{if(confirm('全リセットしますか？')){localStorage.removeItem(STORE_KEY);location.reload();}};
+    document.getElementById('resetBtn').onclick=()=>{
+      if(confirm('全リセットしますか？')){ localStorage.removeItem(STORE_KEY); location.reload(); }
+    };
 
     document.getElementById('exportBtn').onclick=()=>{
       const lines=['カテゴリ,アイテム,チェック,数量'];
@@ -126,18 +153,50 @@
         });
       });
       const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
-      const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='チェックリスト.csv';a.click();
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='チェックリスト.csv'; a.click();
     };
 
     const csvFile=document.getElementById('csvFile');
     document.getElementById('importBtn').onclick=()=>csvFile.click();
     csvFile.onchange=e=>{
-      const file=e.target.files[0]; if(!file)return; const r=new FileReader(); r.onload=()=>loadCsv(r.result); r.readAsText(file,'utf-8'); e.target.value='';
+      const file=e.target.files[0]; if(!file)return;
+      const r=new FileReader();
+      r.onload=()=>loadCsv(r.result);
+      r.readAsText(file,'utf-8');
+      e.target.value='';
     };
 
-    function parseCsv(t){const r=[];let i=0,f='',row=[],q=false;while(i<t.length){const c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i+=2;continue;}q=false;i++;continue;}else{f+=c;i++;continue;}}else{if(c=='"'){q=true;i++;continue;}if(c==','){row.push(f);f='';i++;continue;}if(c=='\n'||c=='\r'){if(f!==''||row.length>0){row.push(f);r.push(row);row=[];f='';}i++;continue;}f+=c;i++;}}if(f!==''||row.length>0){row.push(f);r.push(row);}return r.filter(r=>r.length>0);}
+    // ---- CSV処理 ----
+    function parseCsv(t){
+      const r=[]; let i=0,f='',row=[],q=false;
+      while(i<t.length){
+        const c=t[i];
+        if(q){
+          if(c=='"'){ if(t[i+1]=='"'){ f+='"'; i+=2; continue; } q=false; i++; continue; }
+          else { f+=c; i++; continue; }
+        }else{
+          if(c=='"'){ q=true; i++; continue; }
+          if(c==','){ row.push(f); f=''; i++; continue; }
+          if(c=='\n'||c=='\r'){ if(f!==''||row.length>0){ row.push(f); r.push(row); row=[]; f=''; } i++; continue; }
+          f+=c; i++;
+        }
+      }
+      if(f!==''||row.length>0){ row.push(f); r.push(row); }
+      return r.filter(r=>r.length>0);
+    }
 
-    function loadCsv(t){const rows=parseCsv(t);if(!rows.length)return alert('CSVが空です');const h=rows[0].map(s=>s.trim());const ic=h.indexOf('アイテム');const ck=h.indexOf('チェック');const qy=h.indexOf('数量');if(ic<0)return alert('アイテム列が必要です');rows.slice(1).forEach(cols=>{const l=(cols[ic]||'').trim();if(!l)return;if(ck>=0){const c=(cols[ck]||'').trim();state.checked[l]=(c==='1'||c.toLowerCase()==='true');}if(qy>=0){const q=parseInt((cols[qy]||'1').trim(),10);state.qty[l]=(Number.isFinite(q)&&q>=0)?q:1;}});save(state);render();alert('CSVを読み込みました');}
+    function loadCsv(t){
+      const rows=parseCsv(t); if(!rows.length) return alert('CSVが空です');
+      const h=rows[0].map(s=>s.trim());
+      const ic=h.indexOf('アイテム'); const ck=h.indexOf('チェック'); const qy=h.indexOf('数量');
+      if(ic<0) return alert('アイテム列が必要です');
+      rows.slice(1).forEach(cols=>{
+        const l=(cols[ic]||'').trim(); if(!l) return;
+        if(ck>=0){ const c=(cols[ck]||'').trim(); state.checked[l]=(c==='1'||c.toLowerCase()==='true'); }
+        if(qy>=0){ const q=parseInt((cols[qy]||'1').trim(),10); state.qty[l]=(Number.isFinite(q)&&q>=0)?q:1; }
+      });
+      save(state); render(); alert('CSVを読み込みました');
+    }
   </script>
 </body>
 </html>
