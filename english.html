@@ -3,77 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>英単語暗記チェックリスト｜Netflixシック（訳トグル付）</title>
-  <meta name="theme-color" content="#141414">
+  <title>英単語暗記チェックリスト｜Ader Blue Chic（訳トグル付）</title>
+  <meta name="theme-color" content="#0C2EFF">
   <style>
-    /* ===== Theme: Netflix-like chic ===== */
     :root{
-      --bg:#141414;           /* 背景: Netflix感のあるダーク */
-      --panel:#1f1f1f;        /* カード面 */
-      --panel-2:#181818;      /* ヘッダー等 */
-      --ink:#e5e5e5;          /* 文字(明) */
-      --muted:#a3a3a3;        /* 文字(弱) */
-      --line:#2a2a2a;         /* 線 */
-      --accent:#E50914;       /* Netflixレッド */
-      --accent-2:#b20710;
+      /* Base */
+      --bg:#F6F5F2;          /* やや温かいオフホワイト */
+      --paper:#FFFFFF;       /* カード面 */
+      --ink:#1F2430;         /* 文字（濃いチャコール） */
+      --muted:#717785;       /* 補助文字 */
+      --line:#E6E3DD;        /* 罫線 */
+
+      /* Brand Accent */
+      --primary:#0C2EFF;     /* コバルトブルー */
+      --primary-ink:#FFFFFF; /* ブルー面の文字色 */
+      --primary-soft:#DFE6FF;/* 淡ブルー（タグ/ホバー） */
+
+      /* State */
+      --ok:#16a34a;          /* 覚えたチェック緑（控えめ） */
+      --ok-soft:#E6F6EA;
+
       --radius:16px;
+      --shadow:0 10px 28px rgba(18,25,38,.08);
     }
-    *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     html,body{height:100%}
-    body{margin:0; background:var(--bg); color:var(--ink); font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}
+    body{
+      margin:0;background:var(--bg);color:var(--ink);
+      font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+      letter-spacing:.2px;
+    }
 
-    /* ===== Layout ===== */
+    /* Header */
     header{
-      position:sticky; top:0; z-index:10;
-      background:linear-gradient(180deg,var(--panel-2),rgba(20,20,20,.6));
-      backdrop-filter:saturate(1.2) blur(6px);
+      position:sticky;top:0;z-index:10;backdrop-filter:saturate(1.1) blur(6px);
+      background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(255,255,255,.65));
       border-bottom:1px solid var(--line);
-      padding:12px 16px; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+      padding:14px 18px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;
     }
-    .brand{display:flex; align-items:center; gap:12px}
-    .logo{width:18px;height:28px;background:linear-gradient(180deg,var(--accent),var(--accent-2));border-radius:4px 4px 2px 2px;box-shadow:0 8px 24px rgba(229,9,20,.4)}
-    .title{font-weight:800; letter-spacing:.3px}
-    .toolbar{display:flex; gap:8px; flex-wrap:wrap}
-    .btn{background:var(--accent); color:#fff; border:1px solid transparent; padding:8px 12px; border-radius:999px; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(229,9,20,.28);}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:18px;height:28px;background:var(--primary);border-radius:4px;box-shadow:0 8px 24px rgba(12,46,255,.28)}
+    .title{font-weight:800;letter-spacing:.3px}
+    .sub{font-size:12px;color:var(--muted)}
+
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{background:var(--primary);color:var(--primary-ink);border:1px solid var(--primary);padding:8px 14px;border-radius:999px;font-weight:700;cursor:pointer;box-shadow:0 6px 16px rgba(12,46,255,.18)}
     .btn:hover{transform:translateY(-1px)}
-    .btn.ghost{background:transparent; border-color:#333; color:var(--ink)}
+    .btn.ghost{background:#fff;color:var(--primary);border-color:var(--primary);box-shadow:none}
 
-    /* 5cm拡張: 780px + 約189px = 969px（丸めて 970px） */
-    .wrap{max-width:970px; margin:24px auto; padding:0 16px}
-    .grid{display:flex; flex-direction:column; gap:14px}
+    /* Layout width: 元+約5cm → 970px */
+    .wrap{max-width:970px;margin:24px auto;padding:0 18px}
+    .grid{display:flex;flex-direction:column;gap:16px}
 
-    /* ===== Category Card ===== */
-    .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:12px; box-shadow:0 10px 28px rgba(0,0,0,.22)}
-    .card h2{margin:0; font-size:16px; display:flex; align-items:center; gap:12px; position:relative; padding-right:40px; cursor:pointer; user-select:none}
-    .card h2 .hint{font-size:12px; color:var(--muted); font-weight:500}
-    .card h2::after{content:"▾"; position:absolute; right:8px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:14px}
-    .card.folded h2::after{transform:translateY(-50%) rotate(-90deg); opacity:.7}
+    /* Category card */
+    .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+    .card h2{margin:0;font-size:16px;display:flex;align-items:center;gap:12px;position:relative;padding-right:40px;cursor:pointer;user-select:none}
+    .card h2 .hint{font-size:12px;color:var(--muted);font-weight:500}
+    .card h2::after{content:"▾";position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#9AA2B1;font-size:14px}
+    .card.folded h2::after{transform:translateY(-50%) rotate(-90deg);opacity:.8}
 
-    .h2-actions{margin-left:auto; display:flex; align-items:center; gap:8px}
-    .chip{font-size:11px; padding:6px 12px; border-radius:999px; border:1px solid #333; background:#111; color:var(--ink); cursor:pointer}
-    .chip.accent{background:transparent; border-color:var(--accent); color:var(--accent); box-shadow:0 0 0 1px rgba(229,9,20,.1) inset}
+    .h2-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+    .chip{font-size:11px;padding:6px 12px;border-radius:999px;border:1px solid var(--primary);background:var(--primary-soft);color:var(--primary);cursor:pointer;font-weight:700}
 
-    /* ===== List ===== */
-    .list{list-style:none; padding:0; margin:10px 0 0 0; transition:max-height .35s ease, opacity .35s ease}
-    .list.folded{max-height:0; opacity:0; overflow:hidden}
+    /* List rows */
+    .list{list-style:none;padding:0;margin:12px 0 0 0;transition:max-height .35s ease, opacity .35s ease}
+    .list.folded{max-height:0;opacity:0;overflow:hidden}
 
-    .row{display:grid; grid-template-columns: 1fr auto auto; gap:10px; align-items:center; padding:10px; border:1px solid #2b2b2b; border-radius:12px; background:#101010}
-    .row:hover{border-color:#3a3a3a}
-    .word{font-weight:800; letter-spacing:.2px}
-    .ipa{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; color:#c7c7c7; opacity:.9}
-    .jp{color:#ddd}
-    .jp.hidden{filter: blur(7px); opacity:.5}
+    .row{display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+    .row + .row{margin-top:8px}
+    .row:hover{border-color:#D7D4CD;box-shadow:0 6px 14px rgba(10,20,40,.06)}
 
-    /* small helper */
-    .mute{color:var(--muted)}
+    .word{font-weight:800}
+    .ipa{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;color:#4C5567;opacity:.95}
+    .jp{color:#2b2b2b}
+    .jp.hidden{filter:blur(7px);opacity:.55}
 
-    footer{max-width:970px; margin:20px auto 34px; padding:0 16px; color:var(--muted); font-size:12px}
-    @media print{ header, footer{ display:none !important; } body{ background:#fff } .card{ break-inside: avoid; } }
-    @media (max-width:560px){
-      .row{grid-template-columns: 1fr 1fr;}
-      .ipa{order:3}
-      .jp{order:2}
-    }
+    input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--ok)}
+
+    footer{max-width:970px;margin:20px auto 34px;padding:0 18px;color:var(--muted);font-size:12px}
+    @media print{header,footer{display:none!important}body{background:#fff}.card{break-inside:avoid}}
+    @media (max-width:560px){.row{grid-template-columns:1fr 1fr}.ipa{order:3}.jp{order:2}}
   </style>
 </head>
 <body>
@@ -82,7 +91,7 @@
       <span class="logo"></span>
       <div>
         <div class="title">英単語暗記チェックリスト</div>
-        <div class="mute" style="font-size:12px">訳は各カテゴリ右上のボタンで表示/非表示できます</div>
+        <div class="sub">カテゴリ右上のボタンで訳を表示/非表示。オフホワイト×コバルトで目に優しく集中しやすく。</div>
       </div>
     </div>
     <div class="toolbar">
@@ -92,52 +101,47 @@
   </header>
 
   <div class="wrap"><div class="grid" id="grid"></div></div>
-  <footer>状態は自動保存（localStorage）。「覚えた」にチェックすると保持されます。語彙は下の <code>initialData</code> を編集してください。</footer>
+  <footer>状態は自動保存（localStorage）。単語セットは下の <code>initialData</code> を編集してください。</footer>
 
   <script>
-    /* =============================================
-       初期データ（例）— 必要に応じて自由に編集してください
-       各アイテムは { w:英単語, ipa:発音記号, jp:日本語訳 } の形
-       ============================================= */
+    /* ===== 初期データ（例）— { w, ipa, jp } ===== */
     const initialData = {
-      "動詞": [
+      "動詞":[
         { w:"acquire", ipa:"/əˈkwaɪər/", jp:"獲得する" },
         { w:"assume",  ipa:"/əˈsuːm/",  jp:"仮定する・引き受ける" },
-        { w:"pursue",  ipa:"/pərˈsuː/",  jp:"追求する" }
+        { w:"pursue",  ipa:"/pərˈsuː/", jp:"追求する" },
+        { w:"refine",  ipa:"/rɪˈfaɪn/", jp:"磨く・洗練する" }
       ],
-      "形容詞": [
-        { w:"subtle",   ipa:"/ˈsʌt̬.əl/", jp:"微妙な・繊細な" },
-        { w:"robust",   ipa:"/roʊˈbʌst/", jp:"頑丈な・力強い" },
+      "形容詞":[
+        { w:"subtle", ipa:"/ˈsʌt̬.əl/", jp:"微妙な・繊細な" },
+        { w:"robust", ipa:"/roʊˈbʌst/", jp:"頑丈な・力強い" },
         { w:"feasible", ipa:"/ˈfiː.zə.bəl/", jp:"実行可能な" }
       ],
-      "副詞": [
+      "副詞":[
         { w:"roughly", ipa:"/ˈrʌf.li/", jp:"おおよそ" },
         { w:"literally", ipa:"/ˈlɪt̬.ər.əl.i/", jp:"文字通り" }
       ],
-      "名詞": [
-        { w:"insight",   ipa:"/ˈɪn.saɪt/", jp:"洞察" },
+      "名詞":[
+        { w:"insight", ipa:"/ˈɪn.saɪt/", jp:"洞察" },
         { w:"trajectory", ipa:"/trəˈdʒek.tər.i/", jp:"軌道・軌跡" }
       ],
-      "前置詞": [
+      "前置詞":[
         { w:"beyond", ipa:"/biˈjɑːnd/", jp:"〜を超えて" },
-        { w:"within", ipa:"/wɪˈðɪn/",  jp:"〜以内に／〜の内側に" }
+        { w:"within", ipa:"/wɪˈðɪn/", jp:"〜以内に／〜の内側に" }
       ]
     };
 
-    // 順不同の希望 → ここでは固定配列で並べるが順序は自由に入替OK
-    const ORDER = ["動詞","形容詞","副詞","名詞","前置詞"];
-    const STORE_KEY = 'vocab-deck-v1';
+    const ORDER = ["動詞","形容詞","副詞","名詞","前置詞"]; // 入れ替え自由
+    const STORE_KEY = "vocab-deck-v2-ader-blue";
 
-    // 永続状態
-    const load = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; } };
+    const load = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY))||{} } catch { return {} } };
     const save = s => localStorage.setItem(STORE_KEY, JSON.stringify(s));
     const state = load();
-    if(!state.known) state.known = {};            // 覚えたチェック
-    if(!state.folded) state.folded = {};          // 開閉
-    if(!state.showJP) state.showJP = {};          // 訳表示（カテゴリ単位）
+    if(!state.known) state.known = {};    // 覚えたチェック
+    if(!state.folded) state.folded = {};  // 開閉
+    if(!state.showJP) state.showJP = {};  // 訳表示（カテゴリ単位）
 
-    // ID生成（英数化）
-    const makeId = (cat, w) => 'id-'+(cat+'-'+w).replace(/\s+/g,'-').replace(/[^\w\-]/g,'');
+    const makeId = (cat, w) => 'id-'+(cat+'-'+w).replace(/\\s+/g,'-').replace(/[^\\w\\-]/g,'');
 
     function render(){
       const grid = document.getElementById('grid');
@@ -148,22 +152,15 @@
         card.className = 'card' + (state.folded[cat] ? ' folded' : '');
 
         const h2 = document.createElement('h2');
-        h2.innerHTML = `${cat} <span class="hint">単語 / 発音 / 日本語訳</span>`;
-        h2.onclick = () => {
-          state.folded[cat] = !state.folded[cat];
-          save(state); render();
-        };
+        h2.innerHTML = `${cat} <span class=\"hint\">単語 / 発音 / 日本語訳</span>`;
+        h2.onclick = () => { state.folded[cat] = !state.folded[cat]; save(state); render(); };
 
-        // ←「アイテム追加」だった場所を、訳の表示/非表示トグルに変更
+        // 訳表示トグル
         const toggleJP = document.createElement('span');
-        toggleJP.className = 'chip accent';
+        toggleJP.className = 'chip';
         const show = !!state.showJP[cat];
         toggleJP.textContent = show ? '訳を非表示' : '訳を表示';
-        toggleJP.onclick = (e)=>{
-          e.stopPropagation();
-          state.showJP[cat] = !state.showJP[cat];
-          save(state); render();
-        };
+        toggleJP.onclick = (e)=>{ e.stopPropagation(); state.showJP[cat] = !state.showJP[cat]; save(state); render(); };
 
         const actions = document.createElement('div');
         actions.className = 'h2-actions';
@@ -178,7 +175,6 @@
           li.className = 'row';
           const id = makeId(cat, item.w);
 
-          // 覚えたチェック（任意で残しています）
           const cb = document.createElement('input');
           cb.type = 'checkbox';
           cb.id = id;
@@ -197,12 +193,7 @@
           jp.className = 'jp' + (state.showJP[cat] ? '' : ' hidden');
           jp.textContent = item.jp || '';
 
-          // レイアウト: 単語(左) / 発音(中) / 訳(右) — チェックは左に重ねる
-          // チェックはアクセシビリティのため行頭に配置
-          li.style.gridTemplateColumns = 'auto 1fr auto auto';
-          li.prepend(cb);
-          li.append(word, ipa, jp);
-
+          li.append(cb, word, ipa, jp);
           ul.append(li);
         });
 
@@ -213,10 +204,9 @@
 
     render();
 
-    // Toolbar actions
     document.getElementById('printBtn').onclick = () => window.print();
     document.getElementById('resetBtn').onclick = () => {
-      if(confirm('全リセットしますか？\n（開閉・覚えた・訳表示の状態を削除）')){
+      if(confirm('全リセットしますか？\\n（開閉・覚えた・訳表示の状態を削除）')){
         localStorage.removeItem(STORE_KEY);
         location.reload();
       }
