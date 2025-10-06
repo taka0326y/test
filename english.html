@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="ja">
+<!DOCTYPE html>
+<html lang="ja">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -19,59 +20,60 @@
     }
     *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
     html,body{height:100%}
-    body{margin:0; background:var(--bg); color:var(--ink); font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}/* ===== Layout ===== */
-header{
-  position:sticky; top:0; z-index:10;
-  background:linear-gradient(180deg,var(--panel-2),rgba(20,20,20,.6));
-  backdrop-filter:saturate(1.2) blur(6px);
-  border-bottom:1px solid var(--line);
-  padding:12px 16px; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
-}
-.brand{display:flex; align-items:center; gap:12px}
-.logo{width:18px;height:28px;background:linear-gradient(180deg,var(--accent),var(--accent-2));border-radius:4px 4px 2px 2px;box-shadow:0 8px 24px rgba(229,9,20,.4)}
-.title{font-weight:800; letter-spacing:.3px}
-.toolbar{display:flex; gap:8px; flex-wrap:wrap}
-.btn{background:var(--accent); color:#fff; border:1px solid transparent; padding:8px 12px; border-radius:999px; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(229,9,20,.28);}
-.btn:hover{transform:translateY(-1px)}
-.btn.ghost{background:transparent; border-color:#333; color:var(--ink)}
+    body{margin:0; background:var(--bg); color:var(--ink); font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}
 
-/* 5cm拡張: 780px + 約189px = 969px（丸めて 970px） */
-.wrap{max-width:970px; margin:24px auto; padding:0 16px}
-.grid{display:flex; flex-direction:column; gap:14px}
+    /* ===== Layout ===== */
+    header{
+      position:sticky; top:0; z-index:10;
+      background:linear-gradient(180deg,var(--panel-2),rgba(20,20,20,.6));
+      backdrop-filter:saturate(1.2) blur(6px);
+      border-bottom:1px solid var(--line);
+      padding:12px 16px; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    }
+    .brand{display:flex; align-items:center; gap:12px}
+    .logo{width:18px;height:28px;background:linear-gradient(180deg,var(--accent),var(--accent-2));border-radius:4px 4px 2px 2px;box-shadow:0 8px 24px rgba(229,9,20,.4)}
+    .title{font-weight:800; letter-spacing:.3px}
+    .toolbar{display:flex; gap:8px; flex-wrap:wrap}
+    .btn{background:var(--accent); color:#fff; border:1px solid transparent; padding:8px 12px; border-radius:999px; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(229,9,20,.28);}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.ghost{background:transparent; border-color:#333; color:var(--ink)}
 
-/* ===== Category Card ===== */
-.card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:12px; box-shadow:0 10px 28px rgba(0,0,0,.22)}
-.card h2{margin:0; font-size:16px; display:flex; align-items:center; gap:12px; position:relative; padding-right:40px; cursor:pointer; user-select:none}
-.card h2 .hint{font-size:12px; color:var(--muted); font-weight:500}
-.card h2::after{content:"▾"; position:absolute; right:8px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:14px}
-.card.folded h2::after{transform:translateY(-50%) rotate(-90deg); opacity:.7}
+    /* 5cm拡張: 780px + 約189px = 969px（丸めて 970px） */
+    .wrap{max-width:970px; margin:24px auto; padding:0 16px}
+    .grid{display:flex; flex-direction:column; gap:14px}
 
-.h2-actions{margin-left:auto; display:flex; align-items:center; gap:8px}
-.chip{font-size:11px; padding:6px 12px; border-radius:999px; border:1px solid #333; background:#111; color:var(--ink); cursor:pointer}
-.chip.accent{background:transparent; border-color:var(--accent); color:var(--accent); box-shadow:0 0 0 1px rgba(229,9,20,.1) inset}
+    /* ===== Category Card ===== */
+    .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:12px; box-shadow:0 10px 28px rgba(0,0,0,.22)}
+    .card h2{margin:0; font-size:16px; display:flex; align-items:center; gap:12px; position:relative; padding-right:40px; cursor:pointer; user-select:none}
+    .card h2 .hint{font-size:12px; color:var(--muted); font-weight:500}
+    .card h2::after{content:"▾"; position:absolute; right:8px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:14px}
+    .card.folded h2::after{transform:translateY(-50%) rotate(-90deg); opacity:.7}
 
-/* ===== List ===== */
-.list{list-style:none; padding:0; margin:10px 0 0 0; transition:max-height .35s ease, opacity .35s ease}
-.list.folded{max-height:0; opacity:0; overflow:hidden}
+    .h2-actions{margin-left:auto; display:flex; align-items:center; gap:8px}
+    .chip{font-size:11px; padding:6px 12px; border-radius:999px; border:1px solid #333; background:#111; color:var(--ink); cursor:pointer}
+    .chip.accent{background:transparent; border-color:var(--accent); color:var(--accent); box-shadow:0 0 0 1px rgba(229,9,20,.1) inset}
 
-.row{display:grid; grid-template-columns: 1fr auto auto; gap:10px; align-items:center; padding:10px; border:1px solid #2b2b2b; border-radius:12px; background:#101010}
-.row:hover{border-color:#3a3a3a}
-.word{font-weight:800; letter-spacing:.2px}
-.ipa{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; color:#c7c7c7; opacity:.9}
-.jp{color:#ddd}
-.jp.hidden{filter: blur(7px); opacity:.5}
+    /* ===== List ===== */
+    .list{list-style:none; padding:0; margin:10px 0 0 0; transition:max-height .35s ease, opacity .35s ease}
+    .list.folded{max-height:0; opacity:0; overflow:hidden}
 
-/* small helper */
-.mute{color:var(--muted)}
+    .row{display:grid; grid-template-columns: 1fr auto auto; gap:10px; align-items:center; padding:10px; border:1px solid #2b2b2b; border-radius:12px; background:#101010}
+    .row:hover{border-color:#3a3a3a}
+    .word{font-weight:800; letter-spacing:.2px}
+    .ipa{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; color:#c7c7c7; opacity:.9}
+    .jp{color:#ddd}
+    .jp.hidden{filter: blur(7px); opacity:.5}
 
-footer{max-width:970px; margin:20px auto 34px; padding:0 16px; color:var(--muted); font-size:12px}
-@media print{ header, footer{ display:none !important; } body{ background:#fff } .card{ break-inside: avoid; } }
-@media (max-width:560px){
-  .row{grid-template-columns: 1fr 1fr;}
-  .ipa{order:3}
-  .jp{order:2}
-}
+    /* small helper */
+    .mute{color:var(--muted)}
 
+    footer{max-width:970px; margin:20px auto 34px; padding:0 16px; color:var(--muted); font-size:12px}
+    @media print{ header, footer{ display:none !important; } body{ background:#fff } .card{ break-inside: avoid; } }
+    @media (max-width:560px){
+      .row{grid-template-columns: 1fr 1fr;}
+      .ipa{order:3}
+      .jp{order:2}
+    }
   </style>
 </head>
 <body>
@@ -87,8 +89,12 @@ footer{max-width:970px; margin:20px auto 34px; padding:0 16px; color:var(--muted
       <button class="btn" id="printBtn">印刷</button>
       <button class="btn ghost" id="resetBtn">全リセット</button>
     </div>
-  </header>  <div class="wrap"><div class="grid" id="grid"></div></div>
-  <footer>状態は自動保存（localStorage）。「覚えた」にチェックすると保持されます。語彙は下の <code>initialData</code> を編集してください。</footer>  <script>
+  </header>
+
+  <div class="wrap"><div class="grid" id="grid"></div></div>
+  <footer>状態は自動保存（localStorage）。「覚えた」にチェックすると保持されます。語彙は下の <code>initialData</code> を編集してください。</footer>
+
+  <script>
     /* =============================================
        初期データ（例）— 必要に応じて自由に編集してください
        各アイテムは { w:英単語, ipa:発音記号, jp:日本語訳 } の形
@@ -215,5 +221,6 @@ footer{max-width:970px; margin:20px auto 34px; padding:0 16px; color:var(--muted
         location.reload();
       }
     };
-  </script></body>
+  </script>
+</body>
 </html>
