@@ -1,10 +1,11 @@
-<!DOCTYPE html><html lang="ja"><head>
+<!DOCTYPE html><html lang="ja">
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ケータリング｜チェックリスト</title>
+  <title>ケータリングカフェ｜チェックリスト（CSVなし・全コピペOK）</title>
   <meta name="theme-color" content="#006241">
   <meta property="og:title" content="ケータリングカフェ｜チェックリスト">
-  <meta property="og:description" content="数量入力／CSV入出力／印刷">
+  <meta property="og:description" content="数量入力／印刷／自動保存（CSV機能なし）">
   <meta property="og:type" content="website">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><circle cx=%2216%22 cy=%2216%22 r=%2216%22 fill=%22%23006241%22/><path d=%22M16 6c4 0 7 3 7 7s-3 7-7 7-7-3-7-7 3-7 7-7Z%22 fill=%22white%22/></svg>">
   <style>
@@ -24,81 +25,80 @@
     .btn{background:#fff; color:var(--sbx-green); border:1px solid rgba(0,0,0,.06); padding:8px 12px; border-radius:999px; font-weight:600; cursor:pointer; box-shadow:0 2px 10px rgba(0,0,0,.06);}
     .btn:hover{transform:translateY(-1px); box-shadow:0 6px 14px rgba(0,0,0,.12)}
     .btn.secondary{background:var(--sbx-green); color:#fff; border-color:transparent}
-    .btn.ghost{background:transparent; color:#fff; border:1px solid rgba(255,255,255,.35)}
+    .btn.ghost{background:transparent; color:#fff; border:1px solid rgba(255,255,255,.35)}/* 👇 横幅をスリムに */
+.wrap{max-width:780px; margin:24px auto; padding:0 14px}
+.grid{display:flex; flex-direction:column; gap:16px}
 
-    /* 👇 横幅をスリムに（以前: 1100px） */
-    .wrap{max-width:780px; margin:24px auto; padding:0 14px}
-    .grid{display:flex; flex-direction:column; gap:16px}
+.card{background:var(--sbx-paper); border-radius:var(--radius); padding:12px; border:1px solid rgba(0,0,0,.06); box-shadow:0 10px 24px rgba(0,0,0,.06);}
+.card h2{margin:0; font-size:16px; color:var(--sbx-deep); cursor:pointer; user-select:none}
 
-    .card{background:var(--sbx-paper); border-radius:var(--radius); padding:12px; border:1px solid rgba(0,0,0,.06); box-shadow:0 10px 24px rgba(0,0,0,.06);}
-    .card h2{margin:0; font-size:16px; color:var(--sbx-deep); cursor:pointer; user-select:none}
+.list{list-style:none; padding:0; margin:8px 0 0 0; transition:max-height .4s ease, opacity .4s ease;}
+.list.folded{max-height:0; opacity:0; overflow:hidden;}
 
-    .list{list-style:none; padding:0; margin:8px 0 0 0; transition:max-height .4s ease, opacity .4s ease;}
-    .list.folded{max-height:0; opacity:0; overflow:hidden;}
+.row{display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:12px; border:1px dashed rgba(0,0,0,.06); margin-bottom:6px; background:#fff;}
+.row:hover{border-color:rgba(0,98,65,.25); box-shadow:0 4px 10px rgba(0,0,0,.04)}
 
-    .row{display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:12px; border:1px dashed rgba(0,0,0,.06); margin-bottom:6px; background:#fff;}
-    .row:hover{border-color:rgba(0,98,65,.25); box-shadow:0 4px 10px rgba(0,0,0,.04)}
+input[type="checkbox"]{width:18px; height:18px; cursor:pointer; accent-color:var(--sbx-green)}
+label{cursor:pointer}
+.item{flex:1}
+.qty{width:60px; text-align:center; border:1px solid #ccc; border-radius:8px; padding:4px; font-size:13px}
 
-    input[type="checkbox"]{width:18px; height:18px; cursor:pointer; accent-color:var(--sbx-green)}
-    label{cursor:pointer}
-    .item{flex:1}
-    .qty{width:60px; text-align:center; border:1px solid #ccc; border-radius:8px; padding:4px; font-size:13px}
+/* ✅見出しレイアウト：右端に▼固定＋2cmのセーフゾーン */
+.card h2{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding-right:38px;     /* ▼のための内側余白（ヒット領域確保） */
+  padding-left:10px;      /* 左ラインも下と揃える */
+  position:relative;
+  justify-content:flex-start;
+  min-height:36px;        /* タップしやすさ確保 */
+}
+.card h2::after{
+  content:"▼";
+  font-size:12px;
+  color:var(--sbx-green);
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  transition:.3s;
+  pointer-events:none; /* 誤タップ防止：矢印はクリックを奪わない */
+}
+.card.folded h2::after{
+  transform:translateY(-50%) rotate(-90deg);
+  opacity:.6;
+}
 
-    /* ✅見出しレイアウト：右端に▼固定＋2cmのセーフゾーン */
-    .card h2{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding-right:38px;     /* ▼のための内側余白（ヒット領域確保） */
-      padding-left:10px;      /* 左ラインも下と揃える */
-      position:relative;
-      justify-content:flex-start;
-      min-height:36px;        /* タップしやすさ確保 */
-    }
-    .card h2::after{
-      content:"▼";
-      font-size:12px;
-      color:var(--sbx-green);
-      position:absolute;
-      right:10px;
-      top:50%;
-      transform:translateY(-50%);
-      transition:.3s;
-      pointer-events:none; /* 誤タップ防止：矢印はクリックを奪わない */
-    }
-    .card.folded h2::after{
-      transform:translateY(-50%) rotate(-90deg);
-      opacity:.6;
-    }
+/* 🔒 ここで“2cm”分だけ右側に安全地帯を作る */
+.h2-actions{
+  margin-left:auto;
+  margin-right:var(--extra-gap); /* ← ボタンと▼の間に約2cmの固定余白 */
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
 
-    /* 🔒 ここで“2cm”分だけ右側に安全地帯を作る */
-    .h2-actions{
-      margin-left:auto;
-      margin-right:var(--extra-gap); /* ← ボタンと▼の間に約2cmの固定余白 */
-      display:flex;
-      align-items:center;
-      gap:6px;
-    }
+.chip{
+  font-size:11px;
+  padding:4px 10px;
+  border-radius:999px;
+  border:1px solid rgba(0,0,0,.06);
+  background:#fff;
+  color:var(--sbx-green);
+  cursor:pointer;
+  user-select:none;
+}
 
-    .chip{
-      font-size:11px;
-      padding:4px 10px;
-      border-radius:999px;
-      border:1px solid rgba(0,0,0,.06);
-      background:#fff;
-      color:var(--sbx-green);
-      cursor:pointer;
-      user-select:none;
-    }
+footer{max-width:780px; margin:18px auto 32px; padding:0 14px; color:var(--muted); font-size:12px}
+@media print{ header, footer{ display:none !important; } .card{ max-height:none !important; } body{ background:#fff !important; } }
 
-    footer{max-width:780px; margin:18px auto 32px; padding:0 14px; color:var(--muted); font-size:12px}
-    @media print{ header, footer{ display:none !important; } .card{ max-height:none !important; } body{ background:#fff !important; } }
+/* 📱 画面が狭い時は余白をちょっとだけ控えめに（押しやすさは維持） */
+@media (max-width:480px){
+  .wrap, footer{max-width:100%}
+  .h2-actions{ margin-right:48px; }  /* 約1.3cm相当 */
+}
 
-    /* 📱 画面が狭い時は余白をちょっとだけ控えめに（押しやすさは維持） */
-    @media (max-width:480px){
-      .wrap, footer{max-width:100%}
-      .h2-actions{ margin-right:48px; }  /* 約1.3cm相当 */
-    }
   </style>
 </head>
 <body>
@@ -106,33 +106,25 @@
     <div class="title">
       <span class="bean"></span>
       <div>
-        <div style="font-size:18px; font-weight:800;">ケータリング｜チェックリスト</div>
-        <div class="subtitle">カテゴリ固定順（エスプ→ドリンク→コンディメント→運搬→装飾→フローズンソーダ）</div>
+        <div style="font-size:18px; font-weight:800;">ケータリングカフェ｜チェックリスト</div>
       </div>
     </div>
     <div class="toolbar">
       <button class="btn secondary" id="printBtn">印刷</button>
-      <button class="btn" id="importBtn">CSV読み込み</button>
-      <input type="file" id="csvFile" accept=".csv" style="display:none">
-      <button class="btn" id="exportBtn">CSV書き出し</button>
       <button class="btn ghost" id="resetBtn">全リセット</button>
     </div>
-  </header>
-
-  <div class="wrap"><div class="grid" id="grid"></div></div>
-  <footer>※ 状態は自動保存されます（localStorage）。カテゴリ開閉・チェック・数量すべて保持されます。</footer>
-
-  <script>
+  </header>  <div class="wrap"><div class="grid" id="grid"></div></div>
+  <footer>※ 状態は自動保存されます。カテゴリ開閉・チェック・数量すべて保持。</footer>  <script>
     const initialData={
-      "エスプレッソ関係":["エスプレッソマシン(オスカー2)","グラインダー","ピッチャー","タンパー","タンピングマット","レベラー","量り","卓上用ノックボックス","ブラインドフィルター","マイナスドライバー","ステンレスショットグラス2個"],
-      "ドリンク関係":["コーヒー豆","抹茶粉","ほうじ茶粉","ケトル","製氷機","小型冷蔵庫","パウダーオペレーションセット"],
+      "エスプレッソ関係":["エスプレッソマシン(オスカー2)","グラインダー","ピッチャー","タンパー","タンピングマット","レベラー","量り","ノックボックス(丸)","ノックボックス(四角)","ノックチューブ","ブラインドフィルター","マイナスドライバー","ステンレスショットグラス2個"],
+      "ドリンク関係":["コーヒー豆","抹茶粉","ほうじ茶粉","ケトル","製氷機","小型冷蔵庫(白)","小型冷蔵庫(黒)","保冷バッグ(小)","保冷バッグ(大)","パウダーオペレーションセット"],
       "コンディメント関係":["ガムシロップ","ストロー","ホットカップ","アイスカップ","ホットリッド","アイスリッド","マドラー","ダスター","アルコール","サランラップ","透明水タンク"],
       "運搬関係":["脚立","テーブル","台車","延長ケーブル","発泡スチロール箱","ゴミ箱ゴミ袋","排水ゴムバケツ"],
-      "装飾関係":["小さいメニューボード","サインボード","テーブルクロス","ディスプレイ小物"],
-      "フローズン・ソーダ関係":["グラニータマシン","フローズン原料","ソーダストリーム","炭酸ボトル","フローズンカップ","ワイドストロー"]
+      "装飾関係":["メニューボード","イーゼル","テーブルクロス","ディスプレイ小物"],
+      "フローズン・ソーダ":["グラニータマシン","フローズン原料","ソーダストリーム","炭酸ボトル","フローズンカップ","ワイドストロー"]
     };
-    const ORDER=["エスプレッソ関係","ドリンク関係","コンディメント関係","運搬関係","装飾関係","フローズン・ソーダ関係"];
-    const STORE_KEY='catering-checklist-v2';
+    const ORDER=["エスプレッソ関係","ドリンク関係","コンディメント関係","運搬関係","装飾関係","フローズン・ソーダ"];
+    const STORE_KEY='catering-checklist-v3-nocsv';
 
     const load=()=>{try{return JSON.parse(localStorage.getItem(STORE_KEY))||{};}catch{return {}}};
     const save=s=>localStorage.setItem(STORE_KEY,JSON.stringify(s));
@@ -184,15 +176,18 @@
           const li=document.createElement('li');
           li.className='row';
           const id=makeId(cat,label);
+
           const cb=document.createElement('input');
           cb.type='checkbox';
           cb.id=id;
           cb.checked=!!state.checked[label];
           cb.onchange=()=>{state.checked[label]=cb.checked; save(state)};
+
           const lab=document.createElement('label');
           lab.className='item';
           lab.textContent=label;
           lab.setAttribute('for',id);
+
           const qty=document.createElement('input');
           qty.type='number';
           qty.className='qty';
@@ -204,6 +199,7 @@
             qty.value=state.qty[label];
             save(state)
           };
+
           li.append(cb,lab,qty);
           ul.append(li);
         });
@@ -222,64 +218,5 @@
         location.reload();
       }
     };
-
-    document.getElementById('exportBtn').onclick=()=>{
-      const lines=['カテゴリ,アイテム,チェック,数量'];
-      ORDER.forEach(cat=>{
-        initialData[cat].forEach(label=>{
-          const esc=s=>'"'+String(s).replaceAll('"','""')+'"';
-          lines.push([esc(cat),esc(label),state.checked[label]?1:0,(state.qty[label]??1)].join(','));
-        });
-      });
-      const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
-      const a=document.createElement('a');
-      a.href=URL.createObjectURL(blob);
-      a.download='チェックリスト.csv';
-      a.click();
-    };
-
-    const csvFile=document.getElementById('csvFile');
-    document.getElementById('importBtn').onclick=()=>csvFile.click();
-    csvFile.onchange=e=>{
-      const file=e.target.files[0];
-      if(!file)return;
-      const r=new FileReader();
-      r.onload=()=>loadCsv(r.result);
-      r.readAsText(file,'utf-8');
-      e.target.value='';
-    };
-
-    function parseCsv(t){
-      const r=[];let i=0,f='',row=[],q=false;
-      while(i<t.length){
-        const c=t[i];
-        if(q){
-          if(c=='"'){if(t[i+1]=='"'){f+='"';i+=2;continue;}q=false;i++;continue;}
-          else{f+=c;i++;continue;}
-        }else{
-          if(c=='"'){q=true;i++;continue;}
-          if(c==','){row.push(f);f='';i++;continue;}
-          if(c=='\n'||c=='\r'){if(f!==''||row.length>0){row.push(f);r.push(row);row=[];f='';}i++;continue;}
-          f+=c;i++;
-        }
-      }
-      if(f!==''||row.length>0){row.push(f);r.push(row);}
-      return r.filter(r=>r.length>0);
-    }
-
-    function loadCsv(t){
-      const rows=parseCsv(t);
-      if(!rows.length)return alert('CSVが空です');
-      const h=rows[0].map(s=>s.trim());
-      const ic=h.indexOf('アイテム');const ck=h.indexOf('チェック');const qy=h.indexOf('数量');
-      if(ic<0)return alert('アイテム列が必要です');
-      rows.slice(1).forEach(cols=>{
-        const l=(cols[ic]||'').trim();if(!l)return;
-        if(ck>=0){const c=(cols[ck]||'').trim();state.checked[l]=(c==='1'||c.toLowerCase()==='true');}
-        if(qy>=0){const q=parseInt((cols[qy]||'1').trim(),10);state.qty[l]=(Number.isFinite(q)&&q>=0)?q:1;}
-      });
-      save(state);render();alert('CSVを読み込みました');
-    }
-  </script>
-</body>
+  </script></body>
 </html>
