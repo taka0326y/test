@@ -3,254 +3,85 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>英単語暗記チェックリスト｜Netflixシック</title>
+  <title>英単語暗記チェックリスト｜Netflixシック（訳トグル＋シール剥がし）</title>
   <meta name="theme-color" content="#141414">
   <style>
-    :root {
-      --bg: #141414;
-      --panel: #1f1f1f;
-      --panel-light: #2a2a2a;
-      --text: #e5e5e5;
-      --text-muted: #9a9a9a;
-      --border: #2a2a2a;
-      --accent: #E50914;
-      --accent-light: #ff3b3b;
-      --radius: 12px;
-      --transition: 0.3s ease;
+    :root{
+      --bg:#141414; --panel:#1f1f1f; --panel-2:#181818; --ink:#e5e5e5; --muted:#a3a3a3; --line:#2a2a2a;
+      --accent:#E50914; --accent-2:#b20710; --radius:16px;
     }
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
-      line-height: 1.6;
-    }
-    a {
-      color: inherit;
-      text-decoration: none;
+    *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+    html,body{height:100%}
+    body{margin:0; background:var(--bg); color:var(--ink); font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}
+
+    /* Header */
+    header{position:sticky; top:0; z-index:10; background:linear-gradient(180deg,var(--panel-2),rgba(20,20,20,.6)); backdrop-filter:saturate(1.2) blur(6px); border-bottom:1px solid var(--line); padding:12px 16px; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap}
+    .brand{display:flex; align-items:center; gap:12px}
+    .logo{width:18px; height:28px; background:linear-gradient(180deg,var(--accent),var(--accent-2)); border-radius:4px 4px 2px 2px; box-shadow:0 8px 24px rgba(229,9,20,.4)}
+    .title{font-weight:800; letter-spacing:.3px}
+    .toolbar{display:flex; gap:8px; flex-wrap:wrap}
+    .btn{background:var(--accent); color:#fff; border:1px solid transparent; padding:8px 12px; border-radius:999px; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(229,9,20,.28)}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.ghost{background:transparent; border-color:#333; color:var(--ink)}
+
+    /* Layout */
+    .wrap{max-width:970px; margin:24px auto; padding:0 16px}
+    .grid{display:flex; flex-direction:column; gap:14px}
+
+    /* Card */
+    .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:12px; box-shadow:0 10px 28px rgba(0,0,0,.22)}
+    .card h2{margin:0; font-size:16px; display:flex; align-items:center; gap:12px; position:relative; padding-right:40px; cursor:pointer; user-select:none}
+    .card h2 .hint{font-size:12px; color:var(--muted); font-weight:500}
+    .card h2::after{content:"▾"; position:absolute; right:8px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:14px}
+    .card.folded h2::after{transform:translateY(-50%) rotate(-90deg); opacity:.7}
+
+    .h2-actions{margin-left:auto; display:flex; align-items:center; gap:8px}
+    .chip{font-size:11px; padding:6px 12px; border-radius:999px; border:1px solid #333; background:#111; color:var(--ink); cursor:pointer}
+    .chip.accent{background:transparent; border-color:var(--accent); color:var(--accent); box-shadow:0 0 0 1px rgba(229,9,20,.1) inset}
+
+    /* List */
+    .list{list-style:none; padding:0; margin:10px 0 0 0; transition:max-height .35s ease, opacity .35s ease}
+    .list.folded{max-height:0; opacity:0; overflow:hidden}
+
+    .row{display:grid; grid-template-columns: auto 1fr auto auto; gap:10px; align-items:center; padding:10px; border:1px solid #2b2b2b; border-radius:12px; background:#101010}
+    .row:hover{border-color:#3a3a3a}
+    .word{font-weight:800; letter-spacing:.2px}
+    .ipa{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; color:#c7c7c7; opacity:.9; transform:translateX(-2cm)} /* ← 発音記号を約2cm左に */
+    .jp{color:#ddd; position:relative}
+
+    /* モザイクは不採用。四角い“シール”で覆う（非表示時） */
+    .jp.covered::before{
+      content:""; position:absolute; inset:0; border-radius:0; /* ← 四角 */
+      background:linear-gradient(135deg, #202020, #2a2a2a 60%);
+      border:1px solid #383838;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 4px 10px rgba(0,0,0,.35);
     }
 
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      background: rgba(20,20,20,0.9);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .logo {
-      width: 24px;
-      height: 32px;
-      background: linear-gradient(180deg, var(--accent), var(--accent-light));
-      border-radius: 4px;
-      box-shadow: 0 8px 24px rgba(229,9,20,0.4);
-    }
-    .title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-    .subtitle {
-      font-size: 0.875rem;
-      color: var(--text-muted);
-    }
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .btn {
-      padding: 8px 16px;
-      font-weight: 600;
-      border: none;
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: transform var(--transition), background-color var(--transition);
-      background-color: var(--accent);
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(229,9,20,0.5);
-    }
-    .btn:hover {
-      transform: translateY(-2px);
-      background-color: var(--accent-light);
-    }
-    .btn.ghost {
-      background-color: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
+    .mute{color:var(--muted)}
+
+    footer{max-width:970px; margin:20px auto 34px; padding:0 16px; color:var(--muted); font-size:12px}
+    @media print{ header, footer{ display:none !important } body{ background:#fff } .card{ break-inside: avoid } }
+    @media (max-width:560px){
+      .row{grid-template-columns: 1fr 1fr;}
+      .ipa{order:3; transform:none} /* スマホはズレ解除 */
+      .jp{order:2}
     }
 
-    .container {
-      max-width: 940px;
-      margin: 24px auto;
-      padding: 0 16px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: box-shadow var(--transition), border-color var(--transition);
-    }
-    .card:hover {
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-      border-color: var(--panel-light);
-    }
-    .card header {
-      padding: 16px;
-      background: var(--panel-light);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      user-select: none;
-    }
-    .card header h2 {
-      margin: 0;
-      font-size: 1rem;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-    }
-    .card header .h2-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .chip {
-      padding: 6px 12px;
-      font-size: 0.875rem;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--panel);
-      color: var(--text);
-      cursor: pointer;
-      transition: background-color var(--transition), border-color var(--transition);
-    }
-    .chip.accent {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
-    .chip:hover {
-      background-color: var(--panel-light);
-    }
-
-    .list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      transition: max-height var(--transition), opacity var(--transition);
-    }
-    .list.folded {
-      max-height: 0;
-      opacity: 0;
-    }
-    .list.open {
-      opacity: 1;
-      /* max-height large enough to contain all elements; or auto but CSS transition with auto is tricky */
-      max-height: 1000px;
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: auto 1fr auto auto;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 16px;
-      border-top: 1px solid var(--border);
-      transition: background-color var(--transition), border-color var(--transition);
-    }
-    .row:first-child {
-      border-top: none;
-    }
-    .row:hover {
-      background-color: var(--panel-light);
-    }
-    .word {
-      font-weight: 600;
-      font-size: 1rem;
-    }
-    .ipa {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      color: var(--text-muted);
-      font-size: 0.875rem;
-    }
-    .jp {
-      position: relative;
-      font-size: 0.95rem;
-      transition: opacity var(--transition);
-    }
-    .jp.covered {
-      opacity: 0; /* 隠す */
-    }
-
-    .peel {
-      position: absolute;
-      left: 0;
-      top: 0;
-      pointer-events: none;
+    /* “シール剥がし”アニメーション（四角） */
+    .peel{
+      position:absolute; left:0; top:0; border-radius:0; pointer-events:none;
       background:
-        radial-gradient(14px 14px at 100% 0%, rgba(0,0,0,0.25), transparent 60%),
+        radial-gradient(14px 14px at 100% 0%, rgba(0,0,0,.25), transparent 60%),
         linear-gradient(135deg, #2a2a2a 0%, #1d1d1d 65%, #2a2a2a 100%);
-      border: 1px solid #3a3a3a;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 12px 24px rgba(0,0,0,0.45);
-      transform-origin: left top;
-      opacity: 1;
+      border:1px solid #3a3a3a;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 12px 24px rgba(0,0,0,.45);
+      transform-origin:left top; opacity:1
     }
-
-    .peel.run {
-      animation: peelOff 0.6s cubic-bezier(0.25,0.8,0.25,1) forwards;
-    }
-    @keyframes peelOff {
-      0% { transform: rotateX(0) rotateZ(0) translate(0,0); opacity: 1; }
-      55% { transform: rotateX(30deg) rotateZ(-2deg) translate(-2px, -4px); }
-      100% { transform: rotateX(70deg) rotateZ(-6deg) translate(-4px, -16px); opacity: 0; }
-    }
-
-    footer {
-      max-width: 940px;
-      margin: 40px auto;
-      padding: 0 16px;
-      color: var(--text-muted);
-      font-size: 0.875rem;
-      text-align: center;
-    }
-
-    @media (max-width: 600px) {
-      .row {
-        grid-template-columns: 1fr 1fr;
-      }
-      .ipa {
-        order: 3;
-      }
-      .jp {
-        order: 2;
-      }
+    .peel.run{animation:peelOff .6s cubic-bezier(.25,.8,.25,1) forwards}
+    @keyframes peelOff{
+      0%{transform:rotateX(0) rotateZ(0) translate(0,0); opacity:1}
+      55%{transform:rotateX(30deg) rotateZ(-2deg) translate(-2px,-4px)}
+      100%{transform:rotateX(70deg) rotateZ(-6deg) translate(-4px,-16px); opacity:0}
     }
   </style>
 </head>
@@ -260,7 +91,7 @@
       <span class="logo"></span>
       <div>
         <div class="title">英単語暗記チェックリスト</div>
-        <div class="subtitle">訳は各カテゴリ右上のボタンで表示／非表示できます</div>
+        <div class="mute" style="font-size:12px">訳は各カテゴリ右上のボタンで表示/非表示できます</div>
       </div>
     </div>
     <div class="toolbar">
@@ -268,14 +99,12 @@
       <button class="btn ghost" id="resetBtn">全リセット</button>
     </div>
   </header>
-  <main class="container">
-    <div class="grid" id="grid"></div>
-  </main>
-  <footer>
-    状態は自動保存（localStorage）。「覚えた」チェックで記憶。語彙は <code>initialData</code> を編集して追加できます。
-  </footer>
+
+  <div class="wrap"><div class="grid" id="grid"></div></div>
+  <footer>状態は自動保存（localStorage）。「覚えた」にチェックすると保持されます。語彙は下の <code>initialData</code> を編集してください。</footer>
 
   <script>
+    /* 単語データ（例） */
     const initialData = {
       "動詞":[
         { w:"acquire", ipa:"/əˈkwaɪər/", jp:"獲得する" },
@@ -300,147 +129,115 @@
         { w:"within", ipa:"/wɪˈðɪn/", jp:"〜以内に／〜の内側に" }
       ]
     };
+
     const ORDER = ["動詞","形容詞","副詞","名詞","前置詞"];
     const STORE_KEY = 'vocab-deck-v1';
 
-    function loadState(){
-      try {
-        return JSON.parse(localStorage.getItem(STORE_KEY)) || {};
-      } catch {
-        return {};
-      }
-    }
-    function saveState(s){
-      localStorage.setItem(STORE_KEY, JSON.stringify(s));
-    }
-    const state = loadState();
-    state.known = state.known || {};
-    state.folded = state.folded || {};
-    state.showJP = state.showJP || {};
+    const load = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch { return {}; } };
+    const save = s => localStorage.setItem(STORE_KEY, JSON.stringify(s));
+    const state = load();
+    if(!state.known) state.known = {};
+    if(!state.folded) state.folded = {};
+    if(!state.showJP) state.showJP = {};
 
-    let lastToggle = { cat: null, toShow: false };
+    let lastToggle = { cat:null, toShow:false };
 
-    function makeId(cat, w){
-      return 'id-' + (cat + '-' + w).replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
-    }
+    const makeId = (cat, w) => 'id-'+(cat+'-'+w).replace(/\s+/g,'-').replace(/[^\w\-]/g,'');
 
     function render(){
       const grid = document.getElementById('grid');
       grid.innerHTML = '';
+
       ORDER.forEach(cat => {
-        const section = document.createElement('section');
-        section.className = 'card';
-        if (state.folded[cat]) {
-          section.classList.add('folded');
-        }
+        const card = document.createElement('section');
+        card.className = 'card' + (state.folded[cat] ? ' folded' : '');
 
-        // カードのヘッダー
-        const hdr = document.createElement('header');
         const h2 = document.createElement('h2');
-        h2.textContent = cat;
-        hdr.append(h2);
+        h2.innerHTML = `${cat} <span class="hint">単語 / 発音 / 日本語訳</span>`;
+        h2.onclick = () => { state.folded[cat] = !state.folded[cat]; save(state); render(); };
 
-        const actions = document.createElement('div');
-        actions.className = 'h2-actions';
+        // 訳の表示/非表示（カテゴリ単位）
         const toggleJP = document.createElement('span');
         toggleJP.className = 'chip accent';
         const show = !!state.showJP[cat];
-        toggleJP.textContent = show ? '訳を隠す' : '訳を表示';
-        toggleJP.onclick = (e) => {
+        toggleJP.textContent = show ? '訳を非表示' : '訳を表示';
+        toggleJP.onclick = (e)=>{
           e.stopPropagation();
-          state.showJP[cat] = !state.showJP[cat];
-          lastToggle = { cat, toShow: state.showJP[cat] };
-          saveState(state);
+          const toShow = !state.showJP[cat];
+          state.showJP[cat] = toShow; save(state);
+          lastToggle = { cat, toShow };
           render();
         };
+
+        const actions = document.createElement('div');
+        actions.className = 'h2-actions';
         actions.append(toggleJP);
-        hdr.append(actions);
-
-        hdr.onclick = () => {
-          state.folded[cat] = !state.folded[cat];
-          saveState(state);
-          render();
-        };
-
-        section.append(hdr);
+        h2.append(actions);
 
         const ul = document.createElement('ul');
-        ul.className = 'list';
-        if (state.folded[cat]) {
-          ul.classList.add('folded');
-        } else {
-          ul.classList.add('open');
-        }
+        ul.className = 'list' + (state.folded[cat] ? ' folded' : '');
 
-        (initialData[cat] || []).forEach((item, idx) => {
+        (initialData[cat]||[]).forEach(item => {
           const li = document.createElement('li');
           li.className = 'row';
-
           const id = makeId(cat, item.w);
+
           const cb = document.createElement('input');
-          cb.type = 'checkbox';
-          cb.id = id;
+          cb.type = 'checkbox'; cb.id = id;
           cb.checked = !!state.known[item.w];
-          cb.onchange = () => {
-            state.known[item.w] = cb.checked;
-            saveState(state);
-          };
+          cb.onchange = () => { state.known[item.w] = cb.checked; save(state); };
 
           const word = document.createElement('div');
-          word.className = 'word';
-          word.textContent = item.w;
+          word.className = 'word'; word.textContent = item.w;
 
           const ipa = document.createElement('div');
-          ipa.className = 'ipa';
-          ipa.textContent = item.ipa || '';
+          ipa.className = 'ipa'; ipa.textContent = item.ipa || '';
 
           const jp = document.createElement('div');
           jp.className = 'jp' + (state.showJP[cat] ? '' : ' covered');
           jp.textContent = item.jp || '';
 
-          li.append(cb, word, ipa, jp);
+          /* 配列: チェック / 単語 / 発音 / 訳 */
+          li.style.gridTemplateColumns = 'auto 1fr auto auto';
+          li.prepend(cb);
+          li.append(word, ipa, jp);
+
           ul.append(li);
         });
 
-        section.append(ul);
-        grid.append(section);
+        card.append(h2, ul);
+        grid.append(card);
 
-        if (lastToggle.cat === cat && lastToggle.toShow) {
-          peelReveal(ul);
-        }
+        // 直前に「表示」に切り替えたカテゴリのみ“剥がし”発火
+        if(lastToggle.cat === cat && lastToggle.toShow){ peelReveal(ul); }
       });
     }
 
-    function peelReveal(container) {
+    // 覆いを貼ってから剥がす演出
+    function peelReveal(container){
       const targets = container.querySelectorAll('.jp');
       targets.forEach((jp, idx) => {
         jp.querySelectorAll('.peel').forEach(n => n.remove());
-        const rect = jp.getBoundingClientRect();
+        const r = jp.getBoundingClientRect();
         const peel = document.createElement('span');
         peel.className = 'peel';
-        peel.style.width = rect.width + 'px';
-        peel.style.height = rect.height + 'px';
+        peel.style.width  = r.width  + 'px';
+        peel.style.height = r.height + 'px';
         peel.style.left = '0px';
-        peel.style.top = '0px';
-        peel.style.animationDelay = (idx * 40) + 'ms';
+        peel.style.top  = '0px';
+        peel.style.animationDelay = (idx * 40) + 'ms'; // 連続で剥がす感じ
         jp.appendChild(peel);
         jp.classList.remove('covered');
-        requestAnimationFrame(() => {
-          peel.classList.add('run');
-        });
-        peel.addEventListener('animationend', () => {
-          peel.remove();
-        }, { once: true });
+        requestAnimationFrame(() => peel.classList.add('run'));
+        peel.addEventListener('animationend', () => peel.remove(), { once:true });
       });
     }
 
     render();
 
-    document.getElementById('printBtn').onclick = () => {
-      window.print();
-    };
+    document.getElementById('printBtn').onclick = () => window.print();
     document.getElementById('resetBtn').onclick = () => {
-      if (confirm('全リセットしますか？（開閉・チェック・表示状態すべて）')) {
+      if(confirm('全リセットしますか？\n（開閉・覚えた・訳表示の状態を削除）')){
         localStorage.removeItem(STORE_KEY);
         location.reload();
       }
