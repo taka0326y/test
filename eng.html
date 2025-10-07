@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>英単語暗記チェック｜Ader Blue Light</title>
+  <title>英単語チェック</title>
   <meta name="theme-color" content="#4C6FFF">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -99,7 +99,7 @@
         <span class="tag">Ader Blue Light ver.</span>
       </div>
       <div class="toolbar">
-        <button class="btn" id="resetBtn">全リセット</button>
+        <button class="btn" id="resetBtn">リセット</button>
       </div>
     </div>
   </header>
@@ -223,7 +223,7 @@
     render();
 
     document.getElementById('resetBtn').onclick=()=>{
-      if(confirm('全リセットしますか？\nチェック・開閉・訳表示が消えます')){
+      if(confirm('リセットしますか？\nチェック・開閉・訳表示が消えます')){
         localStorage.removeItem(STORE_KEY);
         location.reload();
       }
