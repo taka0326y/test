@@ -3,45 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>英単語暗記チェック</title>
-  <meta name="theme-color" content="#7aa387">
+  <title>英単語暗記チェック｜Ader Blue Light</title>
+  <meta name="theme-color" content="#4C6FFF">
 
-  <!-- ✅ 発音記号対応フォント -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg:#f8f7f4; --paper:#fffefa; --ink:#2a2f27;
-      --muted:#888f86; --line:#e6e4dd;
-      --accent:#7aa387; --accent-deep:#5f8c71;
-      --chip:#eef3ef; --radius:18px;
-      --shadow:0 10px 28px rgba(0,0,0,.06);
+      --bg:#F7F8FB; --paper:#FFFFFF; --ink:#1F2430;
+      --muted:#6F7787; --line:#E7EAF0;
+      --accent:#4C6FFF; --accent-deep:#3D56CC;
+      --chip:#EDF2FF; --radius:18px;
+      --shadow:0 10px 28px rgba(0,0,0,.05);
     }
     *{box-sizing:border-box}
     body{
       margin:0; font-family:"Noto Sans", "Noto Sans JP", system-ui, sans-serif;
-      background:linear-gradient(180deg,var(--bg),#fff);
+      background:var(--bg);
       color:var(--ink); letter-spacing:.02em;
     }
     .wrap{max-width:970px; margin:22px auto 64px; padding:0 16px}
 
     header{
       position:sticky; top:0; z-index:10;
-      backdrop-filter:blur(6px);
-      background:rgba(255,255,255,.65);
+      backdrop-filter:blur(8px);
+      background:rgba(255,255,255,.8);
       border-bottom:1px solid var(--line);
     }
     .head-inner{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px}
     .title{display:flex; align-items:baseline; gap:10px}
     h1{margin:0; font-size:clamp(20px,3.4vw,28px)}
     .tag{font-size:12px; color:var(--muted)}
-    .toolbar{display:flex; gap:8px; flex-wrap:wrap}
-    .btn{border:1px solid var(--line); background:#fff; color:var(--accent);
+    .toolbar{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    .btn{
+      border:1px solid var(--line); background:var(--paper); color:var(--accent);
       padding:8px 12px; border-radius:999px; font-weight:700; cursor:pointer;
-      box-shadow:0 2px 10px rgba(0,0,0,.04)}
-    .btn:hover{transform:translateY(-1px); box-shadow:0 8px 16px rgba(0,0,0,.08)}
+      box-shadow:0 2px 10px rgba(0,0,0,.04); transition:.2s;
+    }
+    .btn:hover{transform:translateY(-1px); box-shadow:0 8px 16px rgba(0,0,0,.08); background:var(--chip)}
 
     .grid{display:flex; flex-direction:column; gap:16px}
     .card{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
@@ -49,25 +50,35 @@
     .card-title{margin:0; font-size:16px; color:var(--accent-deep); cursor:pointer; user-select:none}
     .chev{margin-left:auto; color:var(--accent); font-size:12px; opacity:.8; pointer-events:none}
     .card.fold .chev{transform:rotate(-90deg); opacity:.6}
-    .h2-actions{margin-left:auto; margin-right:28px; display:flex; align-items:center; gap:8px}
-    .chip{background:var(--chip); color:var(--accent-deep); border:1px solid var(--line);
-      padding:6px 12px; border-radius:999px; font-size:12px; cursor:pointer}
-    .chip:hover{filter:brightness(.98)}
+    .h2-actions{
+      display:flex; align-items:center; justify-content:center;
+      margin-left:auto; margin-right:12px; gap:8px;
+    }
+    .chip{
+      background:var(--chip); color:var(--accent-deep); border:1px solid var(--line);
+      padding:6px 12px; border-radius:999px; font-size:12px; cursor:pointer;
+      line-height:1; display:flex; align-items:center; justify-content:center;
+      transition:.2s;
+    }
+    .chip:hover{filter:brightness(.97); background:#E6ECFF}
 
     .list{list-style:none; margin:0; padding:8px 12px 14px; border-top:1px dashed var(--line)}
     .list.fold{display:none}
-    .row{display:grid; grid-template-columns:24px 1.1fr .9fr 1fr;
-      gap:10px; align-items:center; padding:10px 10px; border:1px dashed var(--line);
-      border-radius:14px; background:#fff; margin-top:8px}
-    .row:hover{border-color:#d8e3db; box-shadow:0 6px 14px rgba(0,0,0,.04)}
+    .row{
+      display:grid; grid-template-columns:24px 1.1fr .9fr 1fr;
+      gap:10px; align-items:center; padding:10px 10px;
+      border:1px dashed var(--line); border-radius:14px;
+      background:#fff; margin-top:8px; transition:.15s;
+    }
+    .row:hover{border-color:#D5DBFF; box-shadow:0 6px 14px rgba(0,0,0,.04)}
     input[type="checkbox"]{width:18px; height:18px; accent-color:var(--accent); cursor:pointer}
     .en{font-weight:700}
     .ipa{
       font-family:"Noto Sans","Noto Serif","Segoe UI Symbol",
                    "Arial Unicode MS","Noto Sans JP",system-ui,sans-serif;
-      color:#4f5a51; font-size:.95em;
+      color:#4F5A71; font-size:.95em;
     }
-    .ja{color:#364239}
+    .ja{color:#354061}
     .card.hide-ja .ja{display:none}
     .card.hide-ja .chip[data-role="toggle-ja"]{opacity:.85}
 
@@ -85,10 +96,9 @@
     <div class="head-inner">
       <div class="title">
         <h1>英単語暗記チェック</h1>
-        <span class="tag">IPA対応</span>
+        <span class="tag">Ader Blue Light ver.</span>
       </div>
       <div class="toolbar">
-        <button class="btn" id="printBtn">印刷</button>
         <button class="btn" id="resetBtn">全リセット</button>
       </div>
     </div>
@@ -128,13 +138,15 @@
     };
 
     const ORDER = Object.keys(initialData);
-    const STORE_KEY = 'vocab-checklist-kcafe-v2';
+    const STORE_KEY = 'vocab-checklist-ader-v1';
     const load = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY))||{} } catch { return {} } };
     const save = s => localStorage.setItem(STORE_KEY, JSON.stringify(s));
     const state = load();
+
     if(!state.checked) state.checked = {};
     if(!state.folded) state.folded = {};
     if(!state.showJa) state.showJa = {};
+    ORDER.forEach(cat => { if(state.showJa[cat] === undefined) state.showJa[cat] = false; });
 
     function render(){
       const grid = document.getElementById('grid');
@@ -210,9 +222,8 @@
     }
     render();
 
-    document.getElementById('printBtn').onclick=()=>window.print();
     document.getElementById('resetBtn').onclick=()=>{
-      if(confirm('全リセットしますか？\\nチェック・開閉・訳表示が消えます')){
+      if(confirm('全リセットしますか？\nチェック・開閉・訳表示が消えます')){
         localStorage.removeItem(STORE_KEY);
         location.reload();
       }
