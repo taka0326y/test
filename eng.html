@@ -2,58 +2,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>英単語暗記チェックリスト｜淡ブルーシック（訳トグル付）</title>
-  <meta name="theme-color" content="#B3C7E6">
+  <title>英単語暗記チェックリスト｜Netflixシック（訳トグル付）</title>
+  <meta name="theme-color" content="#2F5BFF">
+  <!-- IPA対応フォント: Gentium Plus + Noto Sans を読み込み -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gentium+Plus:wght@400;700&family=Noto+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    /* ===== Theme: 淡いブルー×シック ===== */
+    /* ===== Theme: ADER ERROR-inspired (クリーンな白×コバルト) ===== */
     :root{
-      --bg:#F5F8FC;           /* 背景: 柔らかいブルーグレー */
-      --panel:#FFFFFF;        /* カード面 */
-      --panel-2:#EDF2FA;      /* ヘッダー等 */
-      --ink:#2C2C2C;          /* 文字(濃いグレー) */
-      --muted:#6B7280;        /* 文字(弱) */
-      --line:#D8E0EB;         /* 線 */
-      --accent:#5C8DFF;       /* 淡いコバルトブルー */
-      --accent-2:#90B4FF;     /* さらに淡い青 */
-      --radius:16px;
+      --bg:#F6F7FB;           /* ほぼ白に近いライトグレー */
+      --panel:#FFFFFF;        /* カード面（真っ白） */
+      --panel-2:#F1F3F8;      /* ヘッダーの半透明ベース */
+      --ink:#0F1115;          /* 文字(濃い黒) */
+      --muted:#667085;        /* 文字(弱) */
+      --line:#E5E7EB;         /* 線（うっすら） */
+      --accent:#2F5BFF;       /* ADER BLUE（主役） */
+      --accent-2:#5A79FF;     /* 薄めのブルー（補助） */
+      --radius:14px;
     }
     *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
     html,body{height:100%}
-    body{margin:0; background:var(--bg); color:var(--ink); font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}header{
+    body{margin:0; background:var(--bg); color:var(--ink); font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}/* ===== Header ===== */
+header{
   position:sticky; top:0; z-index:10;
-  background:linear-gradient(180deg,var(--panel-2),rgba(255,255,255,.8));
-  backdrop-filter:saturate(1.2) blur(6px);
+  background:linear-gradient(180deg,#FFFFFF,rgba(255,255,255,.78));
+  backdrop-filter:saturate(1.05) blur(6px);
   border-bottom:1px solid var(--line);
   padding:12px 16px; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
 }
 .brand{display:flex; align-items:center; gap:12px}
-.logo{width:18px;height:28px;background:linear-gradient(180deg,var(--accent),var(--accent-2));border-radius:4px;box-shadow:0 6px 18px rgba(92,141,255,.3)}
-.title{font-weight:800; letter-spacing:.3px}
-.toolbar{display:flex; gap:8px; flex-wrap:wrap}
-.btn{background:var(--accent); color:#fff; border:1px solid transparent; padding:8px 12px; border-radius:999px; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(92,141,255,.28);}
-.btn:hover{transform:translateY(-1px)}
-.btn.ghost{background:#fff; border-color:var(--accent); color:var(--accent)}
+/* シンプルなブルーバー = ADERの象徴色だけで表現 */
+.logo{width:18px;height:24px;background:var(--accent);border-radius:3px;box-shadow:0 6px 18px rgba(47,91,255,.25)}
+.title{font-weight:800; letter-spacing:.2px}
 
+.toolbar{display:flex; gap:8px; flex-wrap:wrap}
+.btn{background:var(--accent); color:#fff; border:1px solid var(--accent); padding:8px 14px; border-radius:999px; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(47,91,255,.22)}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{background:#fff; border-color:var(--accent); color:var(--accent); box-shadow:none}
+
+/* ===== Page ===== */
 .wrap{max-width:970px; margin:24px auto; padding:0 16px}
 .grid{display:flex; flex-direction:column; gap:14px}
 
-.card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:12px; box-shadow:0 6px 18px rgba(100,120,160,.08)}
+/* ===== Card ===== */
+.card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:12px; box-shadow:0 6px 18px rgba(15,17,21,.04)}
 .card h2{margin:0; font-size:16px; display:flex; align-items:center; gap:12px; position:relative; padding-right:40px; cursor:pointer; user-select:none}
 .card h2 .hint{font-size:12px; color:var(--muted); font-weight:500}
-.card h2::after{content:"▾"; position:absolute; right:8px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:14px}
-.card.folded h2::after{transform:translateY(-50%) rotate(-90deg); opacity:.7}
+.card h2::after{content:"▾"; position:absolute; right:8px; top:50%; transform:translateY(-50%); color:#9AA3B2; font-size:14px}
+.card.folded h2::after{transform:translateY(-50%) rotate(-90deg); opacity:.8}
 
 .h2-actions{margin-left:auto; display:flex; align-items:center; gap:8px}
-.chip{font-size:11px; padding:6px 12px; border-radius:999px; border:1px solid var(--accent); background:var(--accent-2); color:#fff; cursor:pointer; font-weight:600}
+.chip{font-size:11px; padding:6px 12px; border-radius:999px; border:1px solid var(--accent); background:#fff; color:var(--accent); cursor:pointer; font-weight:700}
+.chip:hover{background:var(--accent); color:#fff}
 
+/* ===== List ===== */
 .list{list-style:none; padding:0; margin:10px 0 0 0; transition:max-height .35s ease, opacity .35s ease}
 .list.folded{max-height:0; opacity:0; overflow:hidden}
 
 .row{display:grid; grid-template-columns: auto 1fr auto auto; gap:10px; align-items:center; padding:10px; border:1px solid var(--line); border-radius:12px; background:#fff}
-.row:hover{border-color:#C8D6F0}
+.row:hover{border-color:#CFD7E6}
 .word{font-weight:800; letter-spacing:.2px}
-.ipa{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; color:#5B5F73; opacity:.9}
-.jp{color:#2b2b2b}
+.ipa{font-family: 'Gentium Plus','Noto Sans','Segoe UI Symbol','Arial Unicode MS','Noto Sans CJK JP',ui-monospace,Menlo,Consolas,monospace; color:#3B3F52; opacity:.95; font-variant-ligatures:none; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale}
+.jp{color:#0F1115}
 .jp.hidden{filter: blur(7px); opacity:.5}
 
 footer{max-width:970px; margin:20px auto 34px; padding:0 16px; color:var(--muted); font-size:12px}
