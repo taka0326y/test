@@ -20,7 +20,7 @@
     }
     *{box-sizing:border-box}
     body{
-      margin:0; font-family:"Noto Sans", "Noto Sans JP", system-ui, sans-serif;
+      margin:0; font-family:"Noto Sans","Noto Sans JP",system-ui,sans-serif;
       background:var(--bg);
       color:var(--ink); letter-spacing:.02em;
     }
@@ -47,7 +47,7 @@
     .grid{display:flex; flex-direction:column; gap:16px}
     .card{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
 
-    /* ▼ 各カテゴリヘッダーをGrid化して揃える */
+    /* ▼ 和訳ボタン揃え */
     .card-head{
       display:grid;
       grid-template-columns: 1fr auto 20px;
@@ -86,15 +86,28 @@
     .list{list-style:none; margin:0; padding:8px 12px 14px; border-top:1px dashed var(--line)}
     .list.fold{display:none}
 
+    /* ▼ 横1列配置（チェックは右） */
     .row{
       display:grid;
-      grid-template-columns:24px 1.1fr .9fr 1fr;
-      gap:10px; align-items:center; padding:10px 10px;
-      border:1px dashed var(--line); border-radius:14px;
-      background:#fff; margin-top:8px; transition:.15s;
+      grid-template-columns: 1.1fr 1fr 1fr 40px;
+      gap:10px;
+      align-items:center;
+      padding:10px;
+      border:1px dashed var(--line);
+      border-radius:14px;
+      background:#fff;
+      margin-top:8px;
+      transition:.15s;
     }
     .row:hover{border-color:#D5DBFF; box-shadow:0 6px 14px rgba(0,0,0,.04)}
-    input[type="checkbox"]{width:18px; height:18px; accent-color:var(--accent); cursor:pointer}
+
+    input[type="checkbox"]{
+      width:20px; height:20px;
+      justify-self:end;
+      accent-color:var(--accent);
+      cursor:pointer;
+    }
+
     .en{font-weight:700}
     .ipa{
       font-family:"Noto Sans","Noto Serif","Segoe UI Symbol",
@@ -105,25 +118,21 @@
     .card.hide-ja .ja{display:none}
     .card.hide-ja .chip[data-role="toggle-ja"]{opacity:.85}
 
-    /* ▼ スマホ：すべて1列表示 */
+    /* ▼ スマホでも横一列キープ */
     @media (max-width: 680px){
       .row{
-        display:grid;
-        grid-template-columns:1fr;
+        grid-template-columns: 1fr 1fr 1fr 36px;
         gap:6px;
-        padding:12px 12px;
+        font-size:15px;
       }
-      .row input[type="checkbox"]{
-        justify-self:start;
+      .ipa{font-size:0.9em;}
+      input[type="checkbox"]{
         width:18px; height:18px;
       }
-      .en, .ipa, .ja{
-        grid-column:1 / -1;
-      }
       .card-head{
-        grid-template-columns: 1fr auto; /* ▼を隠す */
+        grid-template-columns: 1fr auto;
       }
-      .chev{ display:none; }
+      .chev{display:none;}
     }
 
     @media print{header{display:none} .row{break-inside:avoid} body{background:#fff}}
@@ -188,7 +197,7 @@
     };
 
     const ORDER = Object.keys(initialData);
-    const STORE_KEY = 'vocab-checklist-ader-v2';
+    const STORE_KEY = 'vocab-checklist-ader-v3';
     const load = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY))||{} } catch { return {} } };
     const save = s => localStorage.setItem(STORE_KEY, JSON.stringify(s));
     const state = load();
@@ -244,11 +253,6 @@
           const li=document.createElement('li');
           li.className='row';
 
-          const cb=document.createElement('input');
-          cb.type='checkbox';
-          cb.checked=!!state.checked[key];
-          cb.onchange=()=>{state.checked[key]=cb.checked; save(state)};
-
           const en=document.createElement('div');
           en.className='en';
           en.textContent=v.en;
@@ -261,7 +265,12 @@
           ja.className='ja';
           ja.textContent=v.ja||'';
 
-          li.append(cb,en,ipa,ja);
+          const cb=document.createElement('input');
+          cb.type='checkbox';
+          cb.checked=!!state.checked[key];
+          cb.onchange=()=>{state.checked[key]=cb.checked; save(state)};
+
+          li.append(en,ipa,ja,cb);
           ul.append(li);
         });
 
