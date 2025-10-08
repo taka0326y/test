@@ -234,78 +234,110 @@
     if(!state.showJa) state.showJa = {};
     ORDER.forEach(cat => { if(state.showJa[cat] === undefined) state.showJa[cat] = false; });
 
-    function render(){
-      const grid = document.getElementById('grid');
-      grid.innerHTML = '';
-      ORDER.forEach(cat=>{
-        const card=document.createElement('section');
-        card.className='card';
-        if(state.showJa[cat]===false)card.classList.add('hide-ja');
+    function getCounts(cat){
+  const total = initialData[cat].length;
+  const checked = initialData[cat].reduce((n,v)=>{
+    const key = cat+'::'+v.en;
+    return n + (state.checked[key] ? 1 : 0);
+  },0);
+  return { total, checked, ratio: total ? checked/total : 0 };
+}
 
-        const head=document.createElement('div');
-        head.className='card-head';
+function render(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
 
-        const h=document.createElement('h2');
-        h.className='card-title';
-        h.textContent=cat;
-        h.onclick=()=>{state.folded[cat]=!state.folded[cat]; save(state); render();};
+  // チェック数が多いカテゴリほど上に
+  const cats = ORDER.map((cat, idx)=>({ cat, idx, ...getCounts(cat) }))
+                    .sort((a,b)=>{
+                      if(b.checked !== a.checked) return b.checked - a.checked; // 多い順
+                      return a.idx - b.idx; // 同数なら元の順
+                    });
 
-        const actions=document.createElement('div');
-        actions.className='h2-actions';
+  cats.forEach(({cat, total, checked, ratio})=>{
+    const card=document.createElement('section');
+    card.className='card';
+    if(state.showJa[cat]===false) card.classList.add('hide-ja');
 
-        const toggleJa=document.createElement('button');
-        toggleJa.className='chip';
-        toggleJa.dataset.role='toggle-ja';
-        const visible=state.showJa[cat]!==false;
-        toggleJa.textContent=visible?'訳を隠す':'訳を表示';
-        toggleJa.onclick=(e)=>{
-          e.stopPropagation();
-          state.showJa[cat]=!(state.showJa[cat]!==false);
-          save(state); render();
-        };
+    const head=document.createElement('div');
+    head.className='card-head';
 
-        const chev=document.createElement('span');
-        chev.className='chev';
-        chev.textContent='▼';
+    const h=document.createElement('h2');
+    h.className='card-title';
+    h.textContent=cat;
+    h.setAttribute('role','button');
+    h.setAttribute('tabindex','0');
+    h.setAttribute('aria-expanded', String(!state.folded[cat]));
+    h.onclick=()=>{ state.folded[cat]=!state.folded[cat]; save(state); render(); };
+    h.onkeydown=(ev)=>{ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); h.click(); } };
 
-        actions.append(toggleJa);
-        head.append(h,actions,chev);
+    const actions=document.createElement('div');
+    actions.className='h2-actions';
 
-        const ul=document.createElement('ul');
-        ul.className='list';
-        if(state.folded[cat])ul.classList.add('fold');
+    // カウンター＋プログレス＋訳トグル
+    const counter = document.createElement('span');
+    counter.className = 'title-count';
+    counter.textContent = `${checked}/${total}`;
 
-        initialData[cat].forEach(v=>{
-          const key=cat+'::'+v.en;
-          const li=document.createElement('li');
-          li.className='row';
+    const prog = document.createElement('div');
+    prog.className = 'progress';
+    const bar = document.createElement('i');
+    bar.style.width = `${Math.round(ratio*100)}%`;
+    prog.append(bar);
 
-          const en=document.createElement('div');
-          en.className='en';
-          en.textContent=v.en;
+    const toggleJa=document.createElement('button');
+    toggleJa.className='chip';
+    toggleJa.dataset.role='toggle-ja';
+    const visible=state.showJa[cat]!==false;
+    toggleJa.textContent=visible?'訳を隠す':'訳を表示';
+    toggleJa.onclick=(e)=>{
+      e.stopPropagation();
+      state.showJa[cat]=!(state.showJa[cat]!==false);
+      save(state); render();
+    };
 
-          const ipa=document.createElement('div');
-          ipa.className='ipa';
-          ipa.textContent=v.ipa||'';
+    const chev=document.createElement('span');
+    chev.className='chev';
+    chev.textContent='▼';
 
-          const ja=document.createElement('div');
-          ja.className='ja';
-          ja.textContent=v.ja||'';
+    actions.append(counter, prog, toggleJa);
+    head.append(h, actions, chev);
 
-          const cb=document.createElement('input');
-          cb.type='checkbox';
-          cb.checked=!!state.checked[key];
-          cb.onchange=()=>{state.checked[key]=cb.checked; save(state)};
+    const ul=document.createElement('ul');
+    ul.className='list';
+    if(state.folded[cat]) ul.classList.add('fold');
 
-          li.append(en,ipa,ja,cb);
-          ul.append(li);
-        });
+    initialData[cat].forEach(v=>{
+      const key=cat+'::'+v.en;
+      const li=document.createElement('li');
+      li.className='row';
 
-        card.append(head,ul);
-        if(state.folded[cat])card.classList.add('fold');
-        grid.append(card);
-      });
-    }
+      const en=document.createElement('div');
+      en.className='en';
+      en.textContent=v.en;
+
+      const ipa=document.createElement('div');
+      ipa.className='ipa';
+      ipa.textContent=v.ipa||'';
+
+      const ja=document.createElement('div');
+      ja.className='ja';
+      ja.textContent=v.ja||'';
+
+      const cb=document.createElement('input');
+      cb.type='checkbox';
+      cb.checked=!!state.checked[key];
+      cb.onchange=()=>{ state.checked[key]=cb.checked; save(state); render(); };
+
+      li.append(en,ipa,ja,cb);
+      ul.append(li);
+    });
+
+    card.append(head,ul);
+    if(state.folded[cat]) card.classList.add('fold');
+    grid.append(card);
+  });
+}
     render();
 
     document.getElementById('resetBtn').onclick=()=>{
