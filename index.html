@@ -234,6 +234,8 @@
     if(!state.showJa) state.showJa = {};
     ORDER.forEach(cat => { if(state.showJa[cat] === undefined) state.showJa[cat] = false; });
 
+if(!state.itemSort) state.itemSort = 'checked';  // 単語は「チェック済みが上」表示をデフォに
+
     function getCounts(cat){
   const total = initialData[cat].length;
   const checked = initialData[cat].reduce((n,v)=>{
@@ -247,44 +249,38 @@ function render(){
   const grid = document.getElementById('grid');
   grid.innerHTML = '';
 
-  // チェック数が多いカテゴリほど上に
-  const cats = ORDER.map((cat, idx)=>({ cat, idx, ...getCounts(cat) }))
-                    .sort((a,b)=>{
-                      if(b.checked !== a.checked) return b.checked - a.checked; // 多い順
-                      return a.idx - b.idx; // 同数なら元の順
-                    });
-
-  cats.forEach(({cat, total, checked, ratio})=>{
+  // カテゴリの順番はそのまま（ORDERどおり）
+  ORDER.forEach(cat=>{
     const card=document.createElement('section');
     card.className='card';
     if(state.showJa[cat]===false) card.classList.add('hide-ja');
 
+    // --- ヘッダー（タイトル＋ボタン群） ---
     const head=document.createElement('div');
     head.className='card-head';
 
     const h=document.createElement('h2');
     h.className='card-title';
     h.textContent=cat;
-    h.setAttribute('role','button');
-    h.setAttribute('tabindex','0');
-    h.setAttribute('aria-expanded', String(!state.folded[cat]));
     h.onclick=()=>{ state.folded[cat]=!state.folded[cat]; save(state); render(); };
-    h.onkeydown=(ev)=>{ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); h.click(); } };
 
     const actions=document.createElement('div');
     actions.className='h2-actions';
 
-    // カウンター＋プログレス＋訳トグル
-    const counter = document.createElement('span');
-    counter.className = 'title-count';
-    counter.textContent = `${checked}/${total}`;
+    // 並び替えトグル（チェック優先 <-> 元順）
+    const sortBtn = document.createElement('button');
+    sortBtn.className='chip';
+    sortBtn.dataset.role='toggle-sort';
+    const byChecked = state.itemSort === 'checked';
+    sortBtn.textContent = byChecked ? '並び替え：✓上' : '並び替え：元順';
+    sortBtn.title = 'クリックで並び替えを切替';
+    sortBtn.onclick=(e)=>{
+      e.stopPropagation();
+      state.itemSort = byChecked ? 'orig' : 'checked';
+      save(state); render();
+    };
 
-    const prog = document.createElement('div');
-    prog.className = 'progress';
-    const bar = document.createElement('i');
-    bar.style.width = `${Math.round(ratio*100)}%`;
-    prog.append(bar);
-
+    // 訳トグル
     const toggleJa=document.createElement('button');
     toggleJa.className='chip';
     toggleJa.dataset.role='toggle-ja';
@@ -300,15 +296,29 @@ function render(){
     chev.className='chev';
     chev.textContent='▼';
 
-    actions.append(counter, prog, toggleJa);
+    actions.append(sortBtn, toggleJa);
     head.append(h, actions, chev);
 
+    // --- 単語リスト（ここでカテゴリ内並び替え） ---
     const ul=document.createElement('ul');
     ul.className='list';
     if(state.folded[cat]) ul.classList.add('fold');
 
-    initialData[cat].forEach(v=>{
-      const key=cat+'::'+v.en;
+    // initialData[cat] を「チェック済みが上」か「元順」のどちらかで並べる
+    const items = initialData[cat].map((v,i)=>{
+      const key = cat+'::'+v.en;
+      return { v, i, key, checked: !!state.checked[key] };
+    });
+
+    if(state.itemSort === 'checked'){
+      // ✓が true(=1) のものを上に。同数は元の順番で安定ソート
+      items.sort((a,b)=> Number(b.checked) - Number(a.checked) || a.i - b.i);
+    }else{
+      items.sort((a,b)=> a.i - b.i); // 元順
+    }
+
+    // 並べ替え後の順番で描画
+    items.forEach(({v, key, checked})=>{
       const li=document.createElement('li');
       li.className='row';
 
@@ -326,7 +336,7 @@ function render(){
 
       const cb=document.createElement('input');
       cb.type='checkbox';
-      cb.checked=!!state.checked[key];
+      cb.checked=checked;
       cb.onchange=()=>{ state.checked[key]=cb.checked; save(state); render(); };
 
       li.append(en,ipa,ja,cb);
