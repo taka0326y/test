@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>英単語チェック</title>
+  <meta name="theme-color" content="#4C6FFF">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#F7F8FB; --paper:#FFFFFF; --ink:#1F2430;
+      --muted:#6F7787; --line:#E7EAF0;
+      --accent:#4C6FFF; --accent-deep:#3D56CC;
+      --chip:#EDF2FF; --radius:18px;
+      --shadow:0 10px 28px rgba(0,0,0,.05);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:"Noto Sans","Noto Sans JP",system-ui,sans-serif;
+      background:var(--bg);
+      color:var(--ink); letter-spacing:.02em;
+    }
+    .wrap{max-width:970px; margin:22px auto 64px; padding:0 16px}
+
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter:blur(8px);
+      background:rgba(255,255,255,.8);
+      border-bottom:1px solid var(--line);
+    }
+    .head-inner{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px}
+    .title{display:flex; align-items:baseline; gap:10px}
+    h1{margin:0; font-size:clamp(20px,3.4vw,28px)}
+    .tag{font-size:12px; color:var(--muted)}
+    .toolbar{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    .btn{
+      border:1px solid var(--line); background:var(--paper); color:var(--accent);
+      padding:8px 12px; border-radius:999px; font-weight:700; cursor:pointer;
+      box-shadow:0 2px 10px rgba(0,0,0,.04); transition:.2s;
+    }
+    .btn:hover{transform:translateY(-1px); box-shadow:0 8px 16px rgba(0,0,0,.08); background:var(--chip)}
+
+    .grid{display:flex; flex-direction:column; gap:16px}
+    .card{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
+
+    /* ▼ 和訳ボタン揃え */
+    .card-head{
+      display:grid;
+      grid-template-columns: 1fr auto 20px;
+      align-items:center;
+      column-gap:12px;
+      padding:12px 14px;
+      position:relative;
+    }
+    .card-title{margin:0; font-size:16px; color:var(--accent-deep); cursor:pointer; user-select:none}
+    .h2-actions{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+      margin:0;
+    }
+    .chev{
+      justify-self:end;
+      width:20px;
+      text-align:right;
+      color:var(--accent);
+      font-size:12px;
+      opacity:.8;
+      pointer-events:none;
+    }
+    .card.fold .chev{transform:rotate(-90deg); opacity:.6}
+
+    .chip{
+      background:var(--chip); color:var(--accent-deep); border:1px solid var(--line);
+      padding:6px 12px; border-radius:999px; font-size:12px; cursor:pointer;
+      line-height:1; display:flex; align-items:center; justify-content:center;
+      transition:.2s;
+    }
+    .chip:hover{filter:brightness(.97); background:#E6ECFF}
+
+    .list{list-style:none; margin:0; padding:8px 12px 14px; border-top:1px dashed var(--line)}
+    .list.fold{display:none}
+
+    /* ▼ 横1列配置（チェックは右） */
+    .row{
+      display:grid;
+      grid-template-columns: 1.1fr 1fr 1fr 40px;
+      gap:10px;
+      align-items:center;
+      padding:10px;
+      border:1px dashed var(--line);
+      border-radius:14px;
+      background:#fff;
+      margin-top:8px;
+      transition:.15s;
+    }
+    .row:hover{border-color:#D5DBFF; box-shadow:0 6px 14px rgba(0,0,0,.04)}
+
+    input[type="checkbox"]{
+      width:20px; height:20px;
+      justify-self:end;
+      accent-color:var(--accent);
+      cursor:pointer;
+    }
+
+    .en{font-weight:700}
+    .ipa{
+      font-family:"Noto Sans","Noto Serif","Segoe UI Symbol",
+                   "Arial Unicode MS","Noto Sans JP",system-ui,sans-serif;
+      color:#4F5A71; font-size:.95em;
+    }
+    .ja{color:#354061}
+    .card.hide-ja .ja{display:none}
+    .card.hide-ja .chip[data-role="toggle-ja"]{opacity:.85}
+
+    /* ▼ スマホでも横一列キープ */
+    @media (max-width: 680px){
+      .row{
+        grid-template-columns: 1fr 1fr 1fr 36px;
+        gap:6px;
+        font-size:15px;
+      }
+      .ipa{font-size:0.9em;}
+      input[type="checkbox"]{
+        width:18px; height:18px;
+      }
+      .card-head{
+        grid-template-columns: 1fr auto;
+      }
+      .chev{display:none;}
+    }
+
+    @media print{header{display:none} .row{break-inside:avoid} body{background:#fff}}
+
+/* カウンターの見た目 */
+.title-count{
+  font-size:12px;
+  color:var(--muted);
+  margin-right:8px;
+  white-space:nowrap;
+}
+.progress{
+  --w: 90px;
+  width:var(--w);
+  height:6px;
+  border-radius:999px;
+  background:var(--chip);
+  border:1px solid var(--line);
+  overflow:hidden;
+}
+.progress > i{
+  display:block;
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg, var(--accent), var(--accent-deep));
+  transition:width .25s ease;
+}
+@media (max-width:680px){
+  .progress{ --w:72px; }
+}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="head-inner">
+      <div class="title">
+        <h1>英単語暗記チェック</h1>
+        <span class="tag"></span>
+      </div>
+      <div class="toolbar">
+        <button class="btn" id="resetBtn">リセット</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="grid" id="grid"></section>
+  </main>
+
+  <script>
+    const initialData = {
+
+/* ココから単語コピペ */
+
+     "動詞": [
+{ en:"depart", ipa:"/dɪˈpɑːrt/", ja:"出発する" },
+{ en:"arrive", ipa:"/əˈraɪv/", ja:"到着する" },
+{ en:"check", ipa:"/tʃɛk/", ja:"確認する・預ける" },
+{ en:"board", ipa:"/bɔːrd/", ja:"搭乗する" },
+{ en:"land", ipa:"/lænd/", ja:"着陸する" },
+{ en:"take off", ipa:"/ˈteɪk ɒf/", ja:"離陸する" },
+{ en:"cancel", ipa:"/ˈkænsəl/", ja:"取り消す" },
+{ en:"delay", ipa:"/dɪˈleɪ/", ja:"遅らせる" },
+{ en:"announce", ipa:"/əˈnaʊns/", ja:"発表する" },
+{ en:"reserve", ipa:"/rɪˈzɜːrv/", ja:"予約する" },
+{ en:"book", ipa:"/bʊk/", ja:"予約する" },
+{ en:"inspect", ipa:"/ɪnˈspɛkt/", ja:"検査する" },
+{ en:"travel", ipa:"/ˈtrævəl/", ja:"旅行する" },
+{ en:"pack", ipa:"/pæk/", ja:"荷造りする" },
+{ en:"unpack", ipa:"/ʌnˈpæk/", ja:"荷ほどきする" },
+{ en:"carry", ipa:"/ˈkæri/", ja:"運ぶ" },
+{ en:"claim", ipa:"/kleɪm/", ja:"受け取る・主張する" },
+{ en:"transfer", ipa:"/trænsˈfɜːr/", ja:"乗り換える" },
+{ en:"scan", ipa:"/skæn/", ja:"スキャンする" },
+{ en:"inspect", ipa:"/ɪnˈspɛkt/", ja:"点検する" }
+],
+"形容詞": [
+{ en:"domestic", ipa:"/dəˈmɛstɪk/", ja:"国内の" },
+{ en:"international", ipa:"/ˌɪntərˈnæʃənəl/", ja:"国際的な" },
+{ en:"delayed", ipa:"/dɪˈleɪd/", ja:"遅延した" },
+{ en:"scheduled", ipa:"/ˈskɛʤuld/", ja:"予定された" },
+{ en:"available", ipa:"/əˈveɪləbl/", ja:"利用可能な" },
+{ en:"crowded", ipa:"/ˈkraʊdɪd/", ja:"混雑した" },
+{ en:"boarding", ipa:"/ˈbɔːrdɪŋ/", ja:"搭乗中の" },
+{ en:"secure", ipa:"/sɪˈkjʊr/", ja:"安全な" },
+{ en:"restricted", ipa:"/rɪˈstrɪktɪd/", ja:"制限された" },
+{ en:"valid", ipa:"/ˈvælɪd/", ja:"有効な" },
+{ en:"invalid", ipa:"/ɪnˈvælɪd/", ja:"無効な" },
+{ en:"lost", ipa:"/lɒst/", ja:"失われた" },
+{ en:"arriving", ipa:"/əˈraɪvɪŋ/", ja:"到着する" },
+{ en:"departing", ipa:"/dɪˈpɑːrtɪŋ/", ja:"出発する" },
+{ en:"final", ipa:"/ˈfaɪnəl/", ja:"最終の" },
+{ en:"temporary", ipa:"/ˈtɛmpərɛri/", ja:"一時的な" },
+{ en:"essential", ipa:"/ɪˈsɛnʃəl/", ja:"必要不可欠な" },
+{ en:"heavy", ipa:"/ˈhɛvi/", ja:"重い" },
+{ en:"light", ipa:"/laɪt/", ja:"軽い" },
+{ en:"available", ipa:"/əˈveɪləbl/", ja:"空いている" }
+],
+"副詞": [
+{ en:"abroad", ipa:"/əˈbrɔːd/", ja:"海外へ" },
+{ en:"onboard", ipa:"/ˈɒnˌbɔːrd/", ja:"機内で" },
+{ en:"ahead", ipa:"/əˈhɛd/", ja:"前方に" },
+{ en:"nearby", ipa:"/ˌnɪərˈbaɪ/", ja:"近くに" },
+{ en:"early", ipa:"/ˈɜːrli/", ja:"早く" },
+{ en:"late", ipa:"/leɪt/", ja:"遅く" },
+{ en:"soon", ipa:"/suːn/", ja:"まもなく" },
+{ en:"directly", ipa:"/daɪˈrɛktli/", ja:"直接" },
+{ en:"safely", ipa:"/ˈseɪfli/", ja:"安全に" },
+{ en:"quickly", ipa:"/ˈkwɪkli/", ja:"素早く" },
+{ en:"briefly", ipa:"/ˈbriːfli/", ja:"短く" },
+{ en:"officially", ipa:"/əˈfɪʃəli/", ja:"正式に" },
+{ en:"finally", ipa:"/ˈfaɪnəli/", ja:"ついに" },
+{ en:"shortly", ipa:"/ˈʃɔːrtli/", ja:"まもなく" },
+{ en:"carefully", ipa:"/ˈkɛərfəli/", ja:"注意深く" },
+{ en:"immediately", ipa:"/ɪˈmiːdiətli/", ja:"すぐに" },
+{ en:"around", ipa:"/əˈraʊnd/", ja:"周囲に" },
+{ en:"above", ipa:"/əˈbʌv/", ja:"上方に" },
+{ en:"below", ipa:"/bɪˈloʊ/", ja:"下に" },
+{ en:"inside", ipa:"/ɪnˈsaɪd/", ja:"内部で" }
+],
+"名詞": [
+{ en:"airport", ipa:"/ˈɛərpɔːrt/", ja:"空港" },
+{ en:"terminal", ipa:"/ˈtɜːrmɪnəl/", ja:"ターミナル" },
+{ en:"runway", ipa:"/ˈrʌnweɪ/", ja:"滑走路" },
+{ en:"baggage", ipa:"/ˈbæɡɪdʒ/", ja:"手荷物" },
+{ en:"luggage", ipa:"/ˈlʌɡɪdʒ/", ja:"荷物" },
+{ en:"passport", ipa:"/ˈpæspɔːrt/", ja:"パスポート" },
+{ en:"ticket", ipa:"/ˈtɪkɪt/", ja:"チケット" },
+{ en:"boarding pass", ipa:"/ˈbɔːrdɪŋ pæs/", ja:"搭乗券" },
+{ en:"gate", ipa:"/ɡeɪt/", ja:"搭乗口" },
+{ en:"flight", ipa:"/flaɪt/", ja:"便・飛行" },
+{ en:"crew", ipa:"/kruː/", ja:"乗務員" },
+{ en:"pilot", ipa:"/ˈpaɪlət/", ja:"パイロット" },
+{ en:"airline", ipa:"/ˈɛərˌlaɪn/", ja:"航空会社" },
+{ en:"passenger", ipa:"/ˈpæsɪnʤər/", ja:"乗客" },
+{ en:"customs", ipa:"/ˈkʌstəmz/", ja:"税関" },
+{ en:"security", ipa:"/sɪˈkjʊrɪti/", ja:"保安" },
+{ en:"check-in", ipa:"/ˈʧɛk ɪn/", ja:"チェックイン" },
+{ en:"arrival", ipa:"/əˈraɪvəl/", ja:"到着" },
+{ en:"departure", ipa:"/dɪˈpɑːrʧər/", ja:"出発" },
+{ en:"destination", ipa:"/ˌdɛstəˈneɪʃən/", ja:"目的地" }
+],
+"前置詞": [
+{ en:"at", ipa:"/æt/", ja:"〜で（場所・時）" },
+{ en:"to", ipa:"/tuː/", ja:"〜へ" },
+{ en:"from", ipa:"/frʌm/", ja:"〜から" },
+{ en:"on", ipa:"/ɒn/", ja:"〜の上に" },
+{ en:"in", ipa:"/ɪn/", ja:"〜の中に" },
+{ en:"by", ipa:"/baɪ/", ja:"〜までに・〜によって" },
+{ en:"with", ipa:"/wɪð/", ja:"〜と一緒に" },
+{ en:"for", ipa:"/fɔːr/", ja:"〜のために" },
+{ en:"through", ipa:"/θruː/", ja:"〜を通って" },
+{ en:"across", ipa:"/əˈkrɒs/", ja:"〜を横切って" },
+{ en:"over", ipa:"/ˈoʊvər/", ja:"〜の上に" },
+{ en:"under", ipa:"/ˈʌndər/", ja:"〜の下に" },
+{ en:"between", ipa:"/bɪˈtwiːn/", ja:"〜の間に" },
+{ en:"behind", ipa:"/bɪˈhaɪnd/", ja:"〜の後ろに" },
+{ en:"near", ipa:"/nɪər/", ja:"〜の近くに" },
+{ en:"around", ipa:"/əˈraʊnd/", ja:"〜の周りに" },
+{ en:"inside", ipa:"/ɪnˈsaɪd/", ja:"〜の中で" },
+{ en:"outside", ipa:"/ˌaʊtˈsaɪd/", ja:"〜の外で" },
+{ en:"before", ipa:"/bɪˈfɔːr/", ja:"〜の前に" },
+{ en:"after", ipa:"/ˈæftər/", ja:"〜の後に" }
+]
+
+/* ココまで単語コピペ */
+    };
+
+    const ORDER = Object.keys(initialData);
+    const STORE_KEY = 'vocab-checklist-ader-v3';
+    const load = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY))||{} } catch { return {} } };
+    const save = s => localStorage.setItem(STORE_KEY, JSON.stringify(s));
+    const state = load();
+
+    if(!state.checked) state.checked = {};
+    if(!state.folded) state.folded = {};
+    if(!state.showJa) state.showJa = {};
+    ORDER.forEach(cat => { if(state.showJa[cat] === undefined) state.showJa[cat] = false; });
+
+if(!state.itemSort) state.itemSort = 'checked';  // 単語は「チェック済みが上」表示をデフォに
+
+    function getCounts(cat){
+  const total = initialData[cat].length;
+  const checked = initialData[cat].reduce((n,v)=>{
+    const key = cat+'::'+v.en;
+    return n + (state.checked[key] ? 1 : 0);
+  },0);
+  return { total, checked, ratio: total ? checked/total : 0 };
+}
+
+function render(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  // カテゴリの順番はそのまま（ORDERどおり）
+  ORDER.forEach(cat=>{
+    const card=document.createElement('section');
+    card.className='card';
+    if(state.showJa[cat]===false) card.classList.add('hide-ja');
+
+    // --- ヘッダー（タイトル＋ボタン群） ---
+    const head=document.createElement('div');
+    head.className='card-head';
+
+    const h=document.createElement('h2');
+    h.className='card-title';
+    h.textContent=cat;
+    h.onclick=()=>{ state.folded[cat]=!state.folded[cat]; save(state); render(); };
+
+    const actions=document.createElement('div');
+    actions.className='h2-actions';
+
+    // 並び替えトグル（チェック優先 <-> 元順）
+    const sortBtn = document.createElement('button');
+    sortBtn.className='chip';
+    sortBtn.dataset.role='toggle-sort';
+    const byChecked = state.itemSort === 'checked';
+    sortBtn.textContent = byChecked ? '並び替え：✓上' : '並び替え：元順';
+    sortBtn.title = 'クリックで並び替えを切替';
+    sortBtn.onclick=(e)=>{
+      e.stopPropagation();
+      state.itemSort = byChecked ? 'orig' : 'checked';
+      save(state); render();
+    };
+
+    // 訳トグル
+    const toggleJa=document.createElement('button');
+    toggleJa.className='chip';
+    toggleJa.dataset.role='toggle-ja';
+    const visible=state.showJa[cat]!==false;
+    toggleJa.textContent=visible?'訳を隠す':'訳を表示';
+    toggleJa.onclick=(e)=>{
+      e.stopPropagation();
+      state.showJa[cat]=!(state.showJa[cat]!==false);
+      save(state); render();
+    };
+
+    const chev=document.createElement('span');
+    chev.className='chev';
+    chev.textContent='▼';
+
+    actions.append(sortBtn, toggleJa);
+    head.append(h, actions, chev);
+
+    // --- 単語リスト（ここでカテゴリ内並び替え） ---
+    const ul=document.createElement('ul');
+    ul.className='list';
+    if(state.folded[cat]) ul.classList.add('fold');
+
+    // initialData[cat] を「チェック済みが上」か「元順」のどちらかで並べる
+    const items = initialData[cat].map((v,i)=>{
+      const key = cat+'::'+v.en;
+      return { v, i, key, checked: !!state.checked[key] };
+    });
+
+    if(state.itemSort === 'checked'){
+      // ✓が true(=1) のものを上に。同数は元の順番で安定ソート
+      items.sort((a,b)=> Number(b.checked) - Number(a.checked) || a.i - b.i);
+    }else{
+      items.sort((a,b)=> a.i - b.i); // 元順
+    }
+
+    // 並べ替え後の順番で描画
+    items.forEach(({v, key, checked})=>{
+      const li=document.createElement('li');
+      li.className='row';
+
+      const en=document.createElement('div');
+      en.className='en';
+      en.textContent=v.en;
+
+      const ipa=document.createElement('div');
+      ipa.className='ipa';
+      ipa.textContent=v.ipa||'';
+
+      const ja=document.createElement('div');
+      ja.className='ja';
+      ja.textContent=v.ja||'';
+
+      const cb=document.createElement('input');
+      cb.type='checkbox';
+      cb.checked=checked;
+      cb.onchange=()=>{ state.checked[key]=cb.checked; save(state); render(); };
+
+      li.append(en,ipa,ja,cb);
+      ul.append(li);
+    });
+
+    card.append(head,ul);
+    if(state.folded[cat]) card.classList.add('fold');
+    grid.append(card);
+  });
+}
+    render();
+
+    document.getElementById('resetBtn').onclick=()=>{
+      if(confirm('リセットしますか？\nチェック・開閉・訳表示が消えます')){
+        localStorage.removeItem(STORE_KEY);
+        location.reload();
+      }
+    };
+  </script>
+</body>
+</html>
