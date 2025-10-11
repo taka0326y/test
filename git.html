@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>英単語チェック</title>
+  <meta name="theme-color" content="#4C6FFF">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Noto+Serif:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#F7F8FB; --paper:#FFFFFF; --ink:#1F2430;
+      --muted:#6F7787; --line:#E7EAF0;
+      --accent:#4C6FFF; --accent-deep:#3D56CC;
+      --chip:#EDF2FF; --radius:18px;
+      --shadow:0 10px 28px rgba(0,0,0,.05);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:"Noto Sans","Noto Sans JP",system-ui,sans-serif;
+      background:var(--bg);
+      color:var(--ink); letter-spacing:.02em;
+    }
+    .wrap{max-width:970px; margin:22px auto 64px; padding:0 16px}
+
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter:blur(8px);
+      background:rgba(255,255,255,.8);
+      border-bottom:1px solid var(--line);
+    }
+    .head-inner{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px}
+    .title{display:flex; align-items:baseline; gap:10px}
+    h1{margin:0; font-size:clamp(20px,3.4vw,28px)}
+    .tag{font-size:12px; color:var(--muted)}
+    .toolbar{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    .btn{
+      border:1px solid var(--line); background:var(--paper); color:var(--accent);
+      padding:8px 12px; border-radius:999px; font-weight:700; cursor:pointer;
+      box-shadow:0 2px 10px rgba(0,0,0,.04); transition:.2s;
+    }
+    .btn:hover{transform:translateY(-1px); box-shadow:0 8px 16px rgba(0,0,0,.08); background:var(--chip)}
+
+    .grid{display:flex; flex-direction:column; gap:16px}
+    .card{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow)}
+
+    /* ▼ 和訳ボタン揃え */
+    .card-head{
+      display:grid;
+      grid-template-columns: 1fr auto 20px;
+      align-items:center;
+      column-gap:12px;
+      padding:12px 14px;
+      position:relative;
+    }
+    .card-title{margin:0; font-size:16px; color:var(--accent-deep); cursor:pointer; user-select:none}
+    .h2-actions{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+      margin:0;
+    }
+    .chev{
+      justify-self:end;
+      width:20px;
+      text-align:right;
+      color:var(--accent);
+      font-size:12px;
+      opacity:.8;
+      /* クリック可能に変更 */
+      pointer-events:auto;
+      cursor:pointer;
+      padding:4px 6px; /* タップしやすいようにヒットエリア拡大 */
+      transition:transform .2s ease, opacity .2s ease;
+    }
+    .card.fold .chev{transform:rotate(-90deg); opacity:.6}
+
+    .chip{
+      background:var(--chip); color:var(--accent-deep); border:1px solid var(--line);
+      padding:6px 12px; border-radius:999px; font-size:12px; cursor:pointer;
+      line-height:1; display:flex; align-items:center; justify-content:center;
+      transition:.2s;
+    }
+    .chip:hover{filter:brightness(.97); background:#E6ECFF}
+
+    .list{list-style:none; margin:0; padding:8px 12px 14px; border-top:1px dashed var(--line)}
+    .list.fold{display:none}
+
+    /* ▼ 横1列配置（チェックは右） */
+    .row{
+      display:grid;
+      grid-template-columns: 1.1fr 1fr 1fr 40px;
+      gap:10px;
+      align-items:center;
+      padding:10px;
+      border:1px dashed var(--line);
+      border-radius:14px;
+      background:#fff;
+      margin-top:8px;
+      transition:.15s;
+    }
+    .row:hover{border-color:#D5DBFF; box-shadow:0 6px 14px rgba(0,0,0,.04)}
+
+    input[type="checkbox"]{
+      width:20px; height:20px;
+      justify-self:end;
+      accent-color:var(--accent);
+      cursor:pointer;
+    }
+
+    .en{font-weight:700}
+    .ipa{
+      font-family:"Noto Sans","Noto Serif","Segoe UI Symbol",
+                   "Arial Unicode MS","Noto Sans JP",system-ui,sans-serif;
+      color:#4F5A71; font-size:.95em;
+    }
+    .ja{color:#354061}
+    .card.hide-ja .ja{display:none}
+    .card.hide-ja .chip[data-role="toggle-ja"]{opacity:.85}
+
+    /* ▼ スマホでも矢印表示＆クリック可のまま */
+    @media (max-width: 680px){
+      .row{
+        grid-template-columns: 1fr 1fr 1fr 36px;
+        gap:6px;
+        font-size:15px;
+      }
+      .ipa{font-size:0.9em;}
+      input[type="checkbox"]{
+        width:18px; height:18px;
+      }
+      .card-head{
+        grid-template-columns: 1fr auto 20px; /* 矢印カラムを維持 */
+      }
+      /* 矢印は非表示にしない（以前の .chev{display:none;} は削除） */
+    }
+
+    @media print{header{display:none} .row{break-inside:avoid} body{background:#fff}}
+
+    /* カウンターの見た目（未使用ならそのままでOK） */
+    .title-count{
+      font-size:12px;
+      color:var(--muted);
+      margin-right:8px;
+      white-space:nowrap;
+    }
+    .progress{
+      --w: 90px;
+      width:var(--w);
+      height:6px;
+      border-radius:999px;
+      background:var(--chip);
+      border:1px solid var(--line);
+      overflow:hidden;
+    }
+    .progress > i{
+      display:block;
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg, var(--accent), var(--accent-deep));
+      transition:width .25s ease;
+    }
+    @media (max-width:680px){
+      .progress{ --w:72px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="head-inner">
+      <div class="title">
+        <h1>英単語暗記チェック</h1>
+        <span class="tag"></span>
+      </div>
+      <div class="toolbar">
+        <button class="btn" id="resetBtn">リセット</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="grid" id="grid"></section>
+  </main>
+
+  <script>
+    const initialData = {
+
+/* ココから単語コピペ */
+
+"名詞": [
+{ en:"repository", ipa:"/rɪˈpɒzɪtəri/", ja:"貯蔵庫・保管所" },
+{ en:"branch", ipa:"/bræntʃ/", ja:"枝・支店・分岐" },
+{ en:"commit", ipa:"/kəˈmɪt/", ja:"約束・委任・罪を犯すこと" },
+{ en:"merge", ipa:"/mɜːrdʒ/", ja:"融合・合併" },
+{ en:"pull request", ipa:"/pʊl rɪˈkwɛst/", ja:"要求（引き寄せの依頼）" },
+{ en:"issue", ipa:"/ˈɪʃuː/", ja:"問題・発行・論点" },
+{ en:"fork", ipa:"/fɔːrk/", ja:"フォーク・分かれ道" },
+{ en:"clone", ipa:"/kloʊn/", ja:"複製・遺伝的コピー" },
+{ en:"commit message", ipa:"/kəˈmɪt ˈmɛsɪdʒ/", ja:"約束の伝言" },
+{ en:"workflow", ipa:"/ˈwɜːrkfloʊ/", ja:"作業の流れ" },
+{ en:"pipeline", ipa:"/ˈpaɪplaɪn/", ja:"パイプライン・輸送管" },
+{ en:"action", ipa:"/ˈækʃən/", ja:"行動・動作" },
+{ en:"contributor", ipa:"/kənˈtrɪbjətər/", ja:"寄稿者・貢献者" },
+{ en:"collaborator", ipa:"/kəˈlæbəˌreɪtər/", ja:"協力者・共同研究者" },
+{ en:"readme", ipa:"/ˈriːdmiː/", ja:"（英語としては）“read me”＝私を読んで" },
+{ en:"license", ipa:"/ˈlaɪsəns/", ja:"免許・許可証" },
+{ en:"tag", ipa:"/tæɡ/", ja:"札・ラベル" },
+{ en:"release", ipa:"/rɪˈliːs/", ja:"解放・発表" },
+{ en:"diff", ipa:"/dɪf/", ja:"（differenceの略）違い・相違点" },
+{ en:"history", ipa:"/ˈhɪstəri/", ja:"歴史・履歴" }
+],
+"動詞": [
+{ en:"commit", ipa:"/kəˈmɪt/", ja:"犯す・委ねる・約束する" },
+{ en:"merge", ipa:"/mɜːrdʒ/", ja:"合併する・融合する" },
+{ en:"push", ipa:"/pʊʃ/", ja:"押す" },
+{ en:"pull", ipa:"/pʊl/", ja:"引く" },
+{ en:"clone", ipa:"/kloʊn/", ja:"複製する" },
+{ en:"fork", ipa:"/fɔːrk/", ja:"分岐する・枝分かれする" },
+{ en:"review", ipa:"/rɪˈvjuː/", ja:"見直す・批評する" },
+{ en:"approve", ipa:"/əˈpruːv/", ja:"承認する" },
+{ en:"revert", ipa:"/rɪˈvɜːrt/", ja:"戻る・復帰する" },
+{ en:"resolve", ipa:"/rɪˈzɒlv/", ja:"解決する・決意する" },
+{ en:"update", ipa:"/ʌpˈdeɪt/", ja:"最新にする" },
+{ en:"delete", ipa:"/dɪˈliːt/", ja:"削除する" },
+{ en:"create", ipa:"/kriˈeɪt/", ja:"創造する" },
+{ en:"checkout", ipa:"/ˈtʃɛkaʊt/", ja:"（ホテルなどから）出る・確認する" },
+{ en:"stage", ipa:"/steɪdʒ/", ja:"上演する・段階に置く" },
+{ en:"fetch", ipa:"/fɛtʃ/", ja:"取ってくる" },
+{ en:"diff", ipa:"/dɪf/", ja:"（略）差を取る" },
+{ en:"deploy", ipa:"/dɪˈplɔɪ/", ja:"展開する・配置する" },
+{ en:"run", ipa:"/rʌn/", ja:"走る・動作する" },
+{ en:"test", ipa:"/tɛst/", ja:"試す・検査する" }
+],
+"形容詞": [
+{ en:"open-source", ipa:"/ˈoʊpən sɔːrs/", ja:"公開されたソースの" },
+{ en:"private", ipa:"/ˈpraɪvət/", ja:"私的な・個人的な" },
+{ en:"public", ipa:"/ˈpʌblɪk/", ja:"公共の・公の" },
+{ en:"local", ipa:"/ˈloʊkəl/", ja:"地元の・局所的な" },
+{ en:"remote", ipa:"/rɪˈmoʊt/", ja:"遠い・遠隔の" },
+{ en:"stable", ipa:"/ˈsteɪbəl/", ja:"安定した" },
+{ en:"unstable", ipa:"/ʌnˈsteɪbəl/", ja:"不安定な" },
+{ en:"latest", ipa:"/ˈleɪtɪst/", ja:"最新の" },
+{ en:"previous", ipa:"/ˈpriːviəs/", ja:"以前の" },
+{ en:"default", ipa:"/dɪˈfɔːlt/", ja:"既定の・標準の" },
+{ en:"temporary", ipa:"/ˈtɛmpərəri/", ja:"一時的な" },
+{ en:"permanent", ipa:"/ˈpɜːrmənənt/", ja:"永続的な" },
+{ en:"manual", ipa:"/ˈmænjuəl/", ja:"手動の" },
+{ en:"automatic", ipa:"/ˌɔːtəˈmætɪk/", ja:"自動の" },
+{ en:"conflicted", ipa:"/kənˈflɪktɪd/", ja:"対立した・矛盾した" },
+{ en:"clean", ipa:"/kliːn/", ja:"きれいな・清潔な" },
+{ en:"dirty", ipa:"/ˈdɜːrti/", ja:"汚い" },
+{ en:"merged", ipa:"/mɜːrdʒd/", ja:"統合された" },
+{ en:"pending", ipa:"/ˈpɛndɪŋ/", ja:"保留中の" },
+{ en:"approved", ipa:"/əˈpruːvd/", ja:"承認された" }
+],
+"副詞": [
+{ en:"automatically", ipa:"/ˌɔːtəˈmætɪkli/", ja:"自動的に" },
+{ en:"manually", ipa:"/ˈmænjuəli/", ja:"手動で" },
+{ en:"locally", ipa:"/ˈloʊkəli/", ja:"地域的に" },
+{ en:"remotely", ipa:"/rɪˈmoʊtli/", ja:"遠隔で" },
+{ en:"successfully", ipa:"/səkˈsɛsfəli/", ja:"成功して" },
+{ en:"gradually", ipa:"/ˈɡrædʒuəli/", ja:"徐々に" },
+{ en:"temporarily", ipa:"/ˈtɛmpərərɪli/", ja:"一時的に" },
+{ en:"previously", ipa:"/ˈpriːviəsli/", ja:"以前に" },
+{ en:"clearly", ipa:"/ˈklɪərli/", ja:"明確に" },
+{ en:"completely", ipa:"/kəmˈpliːtli/", ja:"完全に" },
+{ en:"properly", ipa:"/ˈprɒpərli/", ja:"適切に" },
+{ en:"quickly", ipa:"/ˈkwɪkli/", ja:"素早く" },
+{ en:"simply", ipa:"/ˈsɪmpli/", ja:"単純に" },
+{ en:"nearly", ipa:"/ˈnɪərli/", ja:"ほとんど" },
+{ en:"safely", ipa:"/ˈseɪfli/", ja:"安全に" },
+{ en:"constantly", ipa:"/ˈkɒnstəntli/", ja:"絶えず" },
+{ en:"recently", ipa:"/ˈriːsəntli/", ja:"最近" },
+{ en:"mostly", ipa:"/ˈmoʊstli/", ja:"主に" },
+{ en:"generally", ipa:"/ˈdʒɛnərəli/", ja:"一般的に" },
+{ en:"accurately", ipa:"/ˈækjərətli/", ja:"正確に" }
+],
+"前置詞": [
+{ en:"on", ipa:"/ɒn/", ja:"〜の上に" },
+{ en:"in", ipa:"/ɪn/", ja:"〜の中に" },
+{ en:"from", ipa:"/frʌm/", ja:"〜から" },
+{ en:"to", ipa:"/tuː/", ja:"〜へ" },
+{ en:"with", ipa:"/wɪð/", ja:"〜と一緒に" },
+{ en:"by", ipa:"/baɪ/", ja:"〜によって" },
+{ en:"for", ipa:"/fɔːr/", ja:"〜のために" },
+{ en:"after", ipa:"/ˈæftər/", ja:"〜の後に" },
+{ en:"before", ipa:"/bɪˈfɔːr/", ja:"〜の前に" },
+{ en:"under", ipa:"/ˈʌndər/", ja:"〜の下に" },
+{ en:"between", ipa:"/bɪˈtwiːn/", ja:"〜の間に" },
+{ en:"among", ipa:"/əˈmʌŋ/", ja:"〜の中で" },
+{ en:"within", ipa:"/wɪˈðɪn/", ja:"〜の内部で" },
+{ en:"over", ipa:"/ˈoʊvər/", ja:"〜の上方に" },
+{ en:"through", ipa:"/θruː/", ja:"〜を通って" },
+{ en:"across", ipa:"/əˈkrɒs/", ja:"〜を横切って" },
+{ en:"at", ipa:"/æt/", ja:"〜で" },
+{ en:"into", ipa:"/ˈɪntuː/", ja:"〜の中へ" },
+{ en:"about", ipa:"/əˈbaʊt/", ja:"〜について" },
+{ en:"without", ipa:"/wɪˈðaʊt/", ja:"〜なしで" }
+]
+
+/* ココまで単語コピペ */
+    };
+
+    const ORDER = Object.keys(initialData);
+    const STORE_KEY = 'vocab-checklist-ader-v3';
+    const load = () => { try { return JSON.parse(localStorage.getItem(STORE_KEY))||{} } catch { return {} } };
+    const save = s => localStorage.setItem(STORE_KEY, JSON.stringify(s));
+    const state = load();
+
+    if(!state.checked) state.checked = {};
+    if(!state.folded) state.folded = {};
+    if(!state.showJa) state.showJa = {};
+    ORDER.forEach(cat => { if(state.showJa[cat] === undefined) state.showJa[cat] = false; });
+
+    if(!state.itemSort) state.itemSort = 'checked';  // 単語は「チェック済みが上」表示をデフォに
+
+    function getCounts(cat){
+      const total = initialData[cat].length;
+      const checked = initialData[cat].reduce((n,v)=>{
+        const key = cat+'::'+v.en;
+        return n + (state.checked[key] ? 1 : 0);
+      },0);
+      return { total, checked, ratio: total ? checked/total : 0 };
+    }
+
+    function render(){
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+
+      // カテゴリの順番はそのまま（ORDERどおり）
+      ORDER.forEach(cat=>{
+        const card=document.createElement('section');
+        card.className='card';
+        if(state.showJa[cat]===false) card.classList.add('hide-ja');
+        if(state.folded[cat]) card.classList.add('fold');
+
+        // --- ヘッダー（タイトル＋ボタン群） ---
+        const head=document.createElement('div');
+        head.className='card-head';
+
+        const h=document.createElement('h2');
+        h.className='card-title';
+        h.textContent=cat;
+        h.onclick=()=>{ state.folded[cat]=!state.folded[cat]; save(state); render(); };
+
+        const actions=document.createElement('div');
+        actions.className='h2-actions';
+
+        // 並び替えトグル（チェック優先 <-> 元順）
+        const sortBtn = document.createElement('button');
+        sortBtn.className='chip';
+        sortBtn.dataset.role='toggle-sort';
+        const byChecked = state.itemSort === 'checked';
+        sortBtn.textContent = byChecked ? '並び替え：✓上' : '並び替え：元順';
+        sortBtn.title = 'クリックで並び替えを切替';
+        sortBtn.onclick=(e)=>{
+          e.stopPropagation();
+          state.itemSort = byChecked ? 'orig' : 'checked';
+          save(state); render();
+        };
+
+        // 訳トグル
+        const toggleJa=document.createElement('button');
+        toggleJa.className='chip';
+        toggleJa.dataset.role='toggle-ja';
+        const visible=state.showJa[cat]!==false;
+        toggleJa.textContent=visible?'訳を隠す':'訳を表示';
+        toggleJa.onclick=(e)=>{
+          e.stopPropagation();
+          state.showJa[cat]=!(state.showJa[cat]!==false);
+          save(state); render();
+        };
+
+        const chev=document.createElement('span');
+        chev.className='chev';
+        chev.textContent='▼';
+        // ▼ 追加：矢印クリックでも開閉
+        chev.onclick=(e)=>{
+          e.stopPropagation();
+          state.folded[cat]=!state.folded[cat];
+          save(state);
+          render();
+        };
+
+        actions.append(sortBtn, toggleJa);
+        head.append(h, actions, chev);
+
+        // --- 単語リスト（ここでカテゴリ内並び替え） ---
+        const ul=document.createElement('ul');
+        ul.className='list';
+        if(state.folded[cat]) ul.classList.add('fold');
+
+        const items = initialData[cat].map((v,i)=>{
+          const key = cat+'::'+v.en;
+          return { v, i, key, checked: !!state.checked[key] };
+        });
+
+        if(state.itemSort === 'checked'){
+          items.sort((a,b)=> Number(b.checked) - Number(a.checked) || a.i - b.i);
+        }else{
+          items.sort((a,b)=> a.i - b.i);
+        }
+
+        items.forEach(({v, key, checked})=>{
+          const li=document.createElement('li');
+          li.className='row';
+
+          const en=document.createElement('div');
+          en.className='en';
+          en.textContent=v.en;
+
+          const ipa=document.createElement('div');
+          ipa.className='ipa';
+          ipa.textContent=v.ipa||'';
+
+          const ja=document.createElement('div');
+          ja.className='ja';
+          ja.textContent=v.ja||''; 
+
+          const cb=document.createElement('input');
+          cb.type='checkbox';
+          cb.checked=checked;
+          cb.onchange=()=>{ state.checked[key]=cb.checked; save(state); render(); };
+
+          li.append(en,ipa,ja,cb);
+          ul.append(li);
+        });
+
+        card.append(head,ul);
+        grid.append(card);
+      });
+    }
+    render();
+
+    document.getElementById('resetBtn').onclick=()=>{
+      if(confirm('リセットしますか？\nチェック・開閉・訳表示が消えます')){
+        localStorage.removeItem(STORE_KEY);
+        location.reload();
+      }
+    };
+  </script>
+</body>
+</html>
